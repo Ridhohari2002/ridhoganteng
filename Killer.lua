@@ -1,7 +1,5 @@
---=====================================================
--- KILLER
---=====================================================
 return function(Window, State, Players, RunService)
+    print("Mencoba memuat Tab Killer...")
 --=====================================================
 -- ATTACK SECTION [⚔️]
 --=====================================================
@@ -17,7 +15,7 @@ KillerSection:Toggle({
     Title = "Infinite Abillities",
     Value = false,
     Callback = function(v)
-        State.InfiniteAbillities = v
+        State.InfiniteAbilities = v
     end
 })
 KillerSection:Toggle({
@@ -27,7 +25,7 @@ KillerSection:Toggle({
     end
 })
 KillerSection:Toggle({
-    Title = "Double Swing"
+    Title = "Double Swing",
     Callback = function(v) 
         State.DoubleSwing = v 
     end
@@ -58,7 +56,7 @@ HitboxSection:Toggle({
     Callback = function(v) 
         State.HitboxEnabled = v 
         if not v then
-            ResetHibox()
+            State.ResetHitbox()
         end
     end
 })
