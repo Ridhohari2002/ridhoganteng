@@ -94,3 +94,4 @@ MiscKillerSection:Toggle({
         State.NoSlow = v 
     end 
 })
+end
