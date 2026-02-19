@@ -21,7 +21,7 @@ KillerSection:Toggle({
     end
 })
 KillerSection:Toggle({
-    Title = "No Cooldown Attack"
+    Title = "No Cooldown Attack",
     Callback = function (v)
         State.NoCooldown = v 
     end
