@@ -24,12 +24,12 @@ local GenStatusLabel = SurvivorSection:Paragraph({
 -------------------------------------------------------
 local function GetGenerators()
     local gens = {}
-    -- Kita ambil folder utama tempat semua mesin generator berada
     local genFolder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Generator")
     
     if genFolder then
+        -- Loop pertama: Masuk ke folder mesin (contoh: [436])
         for _, mesin in ipairs(genFolder:GetChildren()) do
-            -- Kita cari titik point (1-4) di dalam setiap mesin
+            -- Loop kedua: Cari GeneratorPoint1-4 di dalam mesin tersebut
             for _, point in ipairs(mesin:GetChildren()) do
                 if point.Name:find("GeneratorPoint") then
                     table.insert(gens, point)
@@ -40,85 +40,62 @@ local function GetGenerators()
     return gens
 end
 
-    -------------------------------------------------------
-    -- AUTO UPDATE GENERATOR STATUS
-    -------------------------------------------------------
+local function UpdateGeneratorStatus()
+    local generators = GetGenerators()
 
-    local function UpdateGeneratorStatus()
-
-        local generators = GetGenerators()
-
-        if #generators == 0 then
-            GenStatusLabel:SetTitle("No Generators Found")
-            GenStatusLabel:SetDesc("Map belum load atau nama berbeda.")
+    if #generators == 0 then
+        GenStatusLabel:SetTitle("No Generators Found")
+        GenStatusLabel:SetContent("Map belum load atau nama berbeda.") -- FIXED
         return
-        end
-
-        local content = ""
-
-        for i, gen in ipairs(generators) do
-            content ..= "Generator "..i.." : FOUND\n"
-        end
-
-       GenStatusLabel:SetTitle("Total Generators: " .. #generators)
-        GenStatusLabel:SetDesc(content)
-
     end
 
-    -- Update tiap 3 detik biar ringan
-    task.spawn(function()
-        while true do
-            task.wait(3)
-            UpdateGeneratorStatus()
-        end
-    end)
+    local content = ""
+    for i, gen in ipairs(generators) do
+        -- Kita tampilkan nama aslinya (GeneratorPoint1, dll) agar jelas mana yang ketemu
+        content ..= "📍 " .. gen.Name .. " : FOUND\n"
+    end
+
+    GenStatusLabel:SetTitle("Total Generators: " .. #generators)
+    GenStatusLabel:SetContent(content) -- FIXED
+end
 
 SurvivorSection:Button({
     Title = "Find Nearest Generator",
     Callback = function()
         local character = LocalPlayer.Character
-            if not character or not character:FindFirstChild("HumanoidRootPart") then
-                return
-            end
+        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+        if not hrp then return end
 
-            local hrp = character.HumanoidRootPart
-            local generators = GetGenerators()
+        local generators = GetGenerators()
+        local nearest = nil
+        local shortestDistance = math.huge
 
-            local nearest = nil
-            local shortestDistance = math.huge
-
-           -- Di dalam callback button Find Nearest
-            for _, point in ipairs(generators) do
-                -- Pastikan point tersebut adalah Part/MeshPart agar punya posisi
-                if point:IsA("BasePart") then
-                    local dist = (point.Position - hrp.Position).Magnitude
-                    if dist < shortestDistance then
-                        shortestDistance = dist
-                        nearest = point
-                    end
+        for _, point in ipairs(generators) do
+            if point:IsA("BasePart") then
+                local dist = (point.Position - hrp.Position).Magnitude
+                if dist < shortestDistance then
+                    shortestDistance = dist
+                    nearest = point
                 end
             end
-
-            if nearest and nearest.Position then
-                print("Nearest Generator:", nearest.Name)
-                print("Distance:", shortestDistance)
-
-                -- Highlight effect
-                local highlight = Instance.new("Highlight")
-                highlight.FillColor = Color3.fromRGB(0,255,0)
-                highlight.OutlineColor = Color3.fromRGB(255,255,255)
-                highlight.Parent = nearest
-
-                task.delay(5, function()
-                    highlight:Destroy()
-                end)
-
-            else
-                print("Tidak ditemukan generator valid.")
-            end
-
         end
-    })
+
+        if nearest then
+            -- Highlight effect agar tembus tembok
+            local highlight = Instance.new("Highlight")
+            highlight.FillColor = Color3.fromRGB(0, 255, 0)
+            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+            highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- FIXED
+            highlight.Parent = nearest
+
+            task.delay(5, function()
+                if highlight then highlight:Destroy() end
+            end)
+        else
+            print("Tidak ditemukan generator valid.")
+        end
+    end
+})
 -----------------------------------------------
 --Feature Skill Check
 ------------------------------------------------
