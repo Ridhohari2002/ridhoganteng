@@ -22,18 +22,23 @@ local GenStatusLabel = SurvivorSection:Paragraph({
 -------------------------------------------------------
 -- FUNCTION: GET ALL GENERATORS
 -------------------------------------------------------
-
-    local function GetGenerators()
-        local gens = {}
-
-        for _, obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("Model") and obj.Name:lower():find("generator") then
-                table.insert(gens, obj)
+local function GetGenerators()
+    local gens = {}
+    -- Kita ambil folder utama tempat semua mesin generator berada
+    local genFolder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Generator")
+    
+    if genFolder then
+        for _, mesin in ipairs(genFolder:GetChildren()) do
+            -- Kita cari titik point (1-4) di dalam setiap mesin
+            for _, point in ipairs(mesin:GetChildren()) do
+                if point.Name:find("GeneratorPoint") then
+                    table.insert(gens, point)
+                end
             end
         end
-
-        return gens
     end
+    return gens
+end
 
     -------------------------------------------------------
     -- AUTO UPDATE GENERATOR STATUS
@@ -82,18 +87,19 @@ SurvivorSection:Button({
             local nearest = nil
             local shortestDistance = math.huge
 
-            for _, gen in ipairs(generators) do
-                if gen.PrimaryPart then
-                    local dist = (gen.PrimaryPart.Position - hrp.Position).Magnitude
-
+           -- Di dalam callback button Find Nearest
+            for _, point in ipairs(generators) do
+                -- Pastikan point tersebut adalah Part/MeshPart agar punya posisi
+                if point:IsA("BasePart") then
+                    local dist = (point.Position - hrp.Position).Magnitude
                     if dist < shortestDistance then
                         shortestDistance = dist
-                        nearest = gen
+                        nearest = point
                     end
                 end
             end
 
-            if nearest and nearest.PrimaryPart then
+            if nearest and nearest.Position then
                 print("Nearest Generator:", nearest.Name)
                 print("Distance:", shortestDistance)
 
