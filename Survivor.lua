@@ -140,7 +140,7 @@ local HealSection = SurvivorTab:Section({
 }) 
 HealSection:Toggle({
     Title = "Instant Self-Revive", -- biasanya jika saya knock pasti ada tulisan recovery kita bisa recovery sendiri tapi tidak bisa sampai selesai, dan harus butuh bantuan teman dulu agar kita gak knock lagi jadinya instant heal ini berfungsi tanpa recovery sendiri dan bantuan teman lagi langsung tidak knock lagi
-    Value = "false",
+    Value = false,
     Callback = function (v)
         State.InstantHeal = v
     end
