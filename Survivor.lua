@@ -45,7 +45,7 @@ local GenStatusLabel = SurvivorSection:Paragraph({
 
         if #generators == 0 then
             GenStatusLabel:SetTitle("No Generators Found")
-            GenStatusLabel:SetContent("Map belum load atau nama berbeda.")
+            GenStatusLabel:SetDesc("Map belum load atau nama berbeda.")
         return
         end
 
@@ -56,7 +56,7 @@ local GenStatusLabel = SurvivorSection:Paragraph({
         end
 
        GenStatusLabel:SetTitle("Total Generators: " .. #generators)
-        GenStatusLabel:SetContent(content)
+        GenStatusLabel:SetDesc(content)
 
     end
 
