@@ -111,6 +111,49 @@ FeatureSkillCheckSection:Toggle({
     end
 })
 
+--=====================================================
+-- REPAIR FEATURE
+--=====================================================
+local RepairSection = SurvivorTab:Section({
+    Title = "Repair Automation [🔧]",
+    Opened = true
+})
+
+RepairSection:Toggle({
+    Title = "Auto Repair", -- Nahan interaksi otomatis pas lu deket Gen
+    Value = false,
+    Callback = function(v)
+        State.AutoRepair = v
+    end
+})
+
+RepairSection:Button({
+    Title = "Instant Repair (Use with Caution)", -- Langsung tamatin Gen
+    Callback = function()
+        local RepairRemote = game:GetService("ReplicatedStorage").Remotes.Generator.RepairEvent
+        local ResultRemote = game:GetService("ReplicatedStorage").Remotes.Generator.SkillCheckResultEvent
+        
+        -- Cari generator terdekat buat di-instant repair
+        local generators = GetGenerators() -- Pake fungsi yang udah kita buat tadi
+        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        
+        if hrp then
+            for _, gen in ipairs(generators) do
+                local dist = (gen.Position - hrp.Position).Magnitude
+                if dist < 15 then
+                    -- Spam remote buat maksa progress penuh
+                    for i = 1, 30 do
+                        RepairRemote:FireServer(gen)
+                        ResultRemote:FireServer(true)
+                    end
+                    WindUI:Notify({ Title = "Survivor", Content = "Instant Repair Sent!", Duration = 3 })
+                    break
+                end
+            end
+        end
+    end
+})
+
 
 -- Heal (jika knock atau down maka ini auto heal/recovery sendiri tanpa bantuan team)
 local HealSection = SurvivorTab:Section({
