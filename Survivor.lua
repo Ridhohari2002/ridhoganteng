@@ -96,41 +96,53 @@ SurvivorSection:Button({
         end
     end
 })
------------------------------------------------
---Feature Skill Check
-------------------------------------------------
-local FeatureSkillCheckSection = SurvivorTab:Section({
-    Title = "Skill Check Helper",
-    Opened = true
-})
-FeatureSkillCheckSection:Toggle({
-    Title= "Auto Skill Check (Generator & Heal)",
-    Value = false,
-     Callback = function(v)
-            State.AutoSkillCheck = v
-            if v then
-                print("Auto Skill Check Enabled")
-            else
-                print("Auto Skill Check Disabled")
-            end
-        end
-    })
-
 --=====================================================
--- REPAIR FEATURE
+-- Auto Skill Check FEATURE
 --=====================================================
 local RepairSection = SurvivorTab:Section({
-    Title = "Repair Automation [🔧]",
+    Title = "Misc",
     Opened = true
 })
 
 RepairSection:Toggle({
-    Title = "Auto Repair", -- Nahan interaksi otomatis pas lu deket Gen
+    Title = "Auto SkillCheck", 
     Value = false,
     Callback = function(v)
-        State.AutoRepair = v
+        State.AutoSkillCheck = v
     end
 })
+
+-----------------------------------------------
+--Feature Skill Check
+------------------------------------------------
+local FeatureSkillCheckSection = SurvivorTab:Section({
+    Title = "Feature SkillCheck",
+    Opened = true
+})
+FeatureSkillCheckSection:Toggle({
+    Title= "Generator SkillCheck",
+    Value = false,
+     Callback = function(v)
+            State.GenSkillCheck = v
+            if v then
+                print("Generator SkillCheck Enabled")
+            else
+                print("Generator SkillCheck Enabled")
+            end
+        end
+    })
+FeatureSkillCheckSection:Toggle({
+    Title= "Healing SkillCheck",
+    Value = false,
+     Callback = function(v)
+            State.HealSkillCheck = v
+            if v then
+                print("Healing SkillCheck Enabled")
+            else
+                print("Healing SkillCheck Disabled")
+            end
+        end
+    })
 
 -- Heal (jika knock atau down maka ini auto heal/recovery sendiri tanpa bantuan team)
 local HealSection = SurvivorTab:Section({
