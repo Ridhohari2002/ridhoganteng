@@ -126,43 +126,6 @@ RepairSection:Toggle({
         State.AutoRepair = v
     end
 })
-
-RepairSection:Button({
-    Title = "God Repair (Sync)",
-    Callback = function()
-        local RepairRemote = game:GetService("ReplicatedStorage").Remotes.Generator.RepairEvent
-        local ResultRemote = game:GetService("ReplicatedStorage").Remotes.Generator.SkillCheckResultEvent
-        
-        local generators = GetGenerators()
-        local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-        
-        if hrp then
-            for _, point in ipairs(generators) do
-                local dist = (point.Position - hrp.Position).Magnitude
-                if dist < 15 then
-                    task.spawn(function()
-                        WindUI:Notify({ Title = "Survivor", Content = "Bypassing Generator...", Duration = 2 })
-                        
-                        -- Ambil Model Utama (Parent dari Point) untuk Skill Check
-                        local genModel = point.Parent 
-
-                        for i = 1, 50 do
-                            -- Kirim sesuai urutan args yang lu dapet tadi
-                            RepairRemote:FireServer(point, false, 1.5)
-                            
-                            task.wait(0.05) -- Delay biar gak kena kick
-                            
-                            -- Kirim Success/Great agar bar-nya loncat jauh
-                            ResultRemote:FireServer("great", 10, genModel, point)
-                        end
-                    end)
-                    break
-                end
-            end
-        end
-    end
-})
-
 -- Heal (jika knock atau down maka ini auto heal/recovery sendiri tanpa bantuan team)
 local HealSection = SurvivorTab:Section({
     Title = "Heal Feature [💉]",
