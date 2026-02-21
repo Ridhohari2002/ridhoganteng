@@ -128,32 +128,40 @@ RepairSection:Toggle({
 })
 
 RepairSection:Button({
-    Title = "Instant Repair (Use with Caution)", -- Langsung tamatin Gen
+    Title = "God Repair (Sync)",
     Callback = function()
         local RepairRemote = game:GetService("ReplicatedStorage").Remotes.Generator.RepairEvent
         local ResultRemote = game:GetService("ReplicatedStorage").Remotes.Generator.SkillCheckResultEvent
         
-        -- Cari generator terdekat buat di-instant repair
-        local generators = GetGenerators() -- Pake fungsi yang udah kita buat tadi
-        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+        local generators = GetGenerators()
+        local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
         
         if hrp then
-            for _, gen in ipairs(generators) do
-                local dist = (gen.Position - hrp.Position).Magnitude
+            for _, point in ipairs(generators) do
+                local dist = (point.Position - hrp.Position).Magnitude
                 if dist < 15 then
-                    -- Spam remote buat maksa progress penuh
-                    for i = 1, 30 do
-                        RepairRemote:FireServer(gen)
-                        ResultRemote:FireServer(true)
-                    end
-                    WindUI:Notify({ Title = "Survivor", Content = "Instant Repair Sent!", Duration = 3 })
+                    task.spawn(function()
+                        WindUI:Notify({ Title = "Survivor", Content = "Bypassing Generator...", Duration = 2 })
+                        
+                        -- Ambil Model Utama (Parent dari Point) untuk Skill Check
+                        local genModel = point.Parent 
+
+                        for i = 1, 50 do
+                            -- Kirim sesuai urutan args yang lu dapet tadi
+                            RepairRemote:FireServer(point, false, 1.5)
+                            
+                            task.wait(0.05) -- Delay biar gak kena kick
+                            
+                            -- Kirim Success/Great agar bar-nya loncat jauh
+                            ResultRemote:FireServer("great", 10, genModel, point)
+                        end
+                    end)
                     break
                 end
             end
         end
     end
 })
-
 
 -- Heal (jika knock atau down maka ini auto heal/recovery sendiri tanpa bantuan team)
 local HealSection = SurvivorTab:Section({
