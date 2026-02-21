@@ -106,7 +106,7 @@ local FeatureSkillCheckSection = SurvivorTab:Section({
 FeatureSkillCheckSection:Toggle({
     Title= "Auto Skill Check (Generator & Heal)",
     Value = false,
-    Callback = function(v)
+     Callback = function(v)
             State.AutoSkillCheck = v
             if v then
                 print("Auto Skill Check Enabled")
@@ -115,94 +115,6 @@ FeatureSkillCheckSection:Toggle({
             end
         end
     })
-    -- Auto Skill Check Connection
-    local skillCheckConnection
-    
-    local function setupSkillCheck()
-        -- Disconnect existing connection if any
-        if skillCheckConnection then
-            skillCheckConnection:Disconnect()
-            skillCheckConnection = nil
-        end
-        
-        -- Create new connection if enabled
-        if State.AutoSkillCheck then
-            skillCheckConnection = RunService.Heartbeat:Connect(function()
-                if not State.AutoSkillCheck then return end
-                
-                -- Auto complete skill checks for generators and healing
-                -- This listens for skill check events and automatically succeeds them
-                local success, errorMsg = pcall(function()
-                    -- Find skill check UI elements
-                    local playerGui = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
-                    if not playerGui then return end
-                    
-                    -- Look for skill check popup
-                    local skillCheckPopup = playerGui:FindFirstChild("SkillCheck-gen") or 
-                                           playerGui:FindFirstChild("GeneratorSkillCheck") or
-                                           playerGui:FindFirstChild("HealSkillCheck") or
-                                           playerGui:FindFirstChild("SkillCheck-player") or
-                                           playerGui:FindFirstChild("CheckInterractable")
-                    
-                    if skillCheckPopup and skillCheckPopup.Enabled then
-                        -- Find the skill check button/frame and simulate perfect hit
-                        local skillCheckButton = skillCheckPopup:FindFirstChild("Button") or 
-                                                skillCheckPopup:FindFirstChild("SkillCheckButton")
-                        
-                        if skillCheckButton and skillCheckButton.Visible then
-                            -- Fire the skill check success event
-                            local args = {
-                                "success",
-                                100, -- Perfect hit
-                                workspace:WaitForChild("Map"):WaitForChild("Gens"):FindFirstChild("Generator"),
-                                workspace:WaitForChild("Map"):WaitForChild("Gens"):FindFirstChild("Generator"):FindFirstChild("GeneratorPoint")
-                            }
-                            
-                            local skillCheckEvent = ReplicatedStorage:FindFirstChild("Remotes") and
-                                                   ReplicatedStorage.Remotes:FindFirstChild("Generator") and
-                                                   ReplicatedStorage.Remotes.Generator:FindFirstChild("SkillCheckResultEvent")
-                            
-                            if skillCheckEvent then
-                                skillCheckEvent:FireServer(unpack(args))
-                            end
-                        end
-                    end
-                end)
-                
-                if not success then
-                    warn("Error in Auto Skill Check: " .. tostring(errorMsg))
-                end
-            end)
-        end
-    end
-    
-    -- Monitor state changes
-    game:GetService("UserInputService").InputBegan:Connect(function(input)
-        if State.AutoSkillCheck and input.UserInputType == Enum.UserInputType.Keyboard then
-            -- Optional: Add keybind to toggle or trigger manual override
-        end
-    end)
-    
-    -- Initial setup
-    setupSkillCheck()
-    
-    -- Reconnect when state changes
-    local oldAutoSkillCheck = State.AutoSkillCheck
-    game:GetService("RunService").Stepped:Connect(function()
-        if oldAutoSkillCheck ~= State.AutoSkillCheck then
-            oldAutoSkillCheck = State.AutoSkillCheck
-            setupSkillCheck()
-        end
-    end)
-    
-    -- Cleanup when UI closes
-    SurvivorTab:OnDestroy(function()
-        if skillCheckConnection then
-            skillCheckConnection:Disconnect()
-            skillCheckConnection = nil
-        end
-    end)
-end
 
 --=====================================================
 -- REPAIR FEATURE
