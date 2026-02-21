@@ -138,9 +138,11 @@ FeatureSkillCheckSection:Toggle({
                     if not playerGui then return end
                     
                     -- Look for skill check popup
-                    local skillCheckPopup = playerGui:FindFirstChild("SkillCheck") or 
+                    local skillCheckPopup = playerGui:FindFirstChild("SkillCheck-gen") or 
                                            playerGui:FindFirstChild("GeneratorSkillCheck") or
-                                           playerGui:FindFirstChild("HealSkillCheck")
+                                           playerGui:FindFirstChild("HealSkillCheck") or
+                                           playerGui:FindFirstChild("SkillCheck-player") or
+                                           playerGui:FindFirstChild("CheckInterractable")
                     
                     if skillCheckPopup and skillCheckPopup.Enabled then
                         -- Find the skill check button/frame and simulate perfect hit
