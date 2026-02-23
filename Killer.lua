@@ -1,5 +1,6 @@
 return function(Window, State, Players, RunService)
     print("Mencoba memuat Tab Killer...")
+    local State = _G.SharedState
 --=====================================================
 -- ATTACK SECTION [⚔️]
 --=====================================================
