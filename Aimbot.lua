@@ -1,6 +1,5 @@
 return function(Window, State, Players, RunService)
     print("Mencoba memuat Tab Aimbot...")
-    local LocalPlayer = Players.LocalPlayer
     local State = _G.SharedState
 
 --=====================================================
@@ -8,7 +7,7 @@ return function(Window, State, Players, RunService)
 --=====================================================
 local AimTab = Window:Tab({ 
     Title = "Aimbot", 
-    Icon = "lucide:crosshair", 
+    Icon = "lucide:crosshair" 
 })
 
 local AimbotSettingSection = AimTab:Section({
