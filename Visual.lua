@@ -41,23 +41,12 @@ local ESPSection = VisualTab:Section ({
 
 ESPSection:Dropdown({
     Title = "Selected Entities",
-    MultiSelect = true, -- Pastikan WindUI versimu mendukung ini
+    Multi = true, -- Pastikan WindUI versimu mendukung ini
     Values = {"Killer", "Survivor", "Generators", "Gates", "Pallets", "Windows", "Hooks"},
     Callback = function(v)
-        -- v biasanya berupa table jika MultiSelect aktif
-        if type(v) == "table" then
-            -- Reset semua dulu
-            for k in pairs(State.ESP.Selected) do State.ESP.Selected[k] = false end
-            -- Aktifkan yang dipilih
-            for _, name in pairs(v) do
-                if State.ESP.Selected[name] ~= nil then
-                    State.ESP.Selected[name] = true
-                end
-            end
-        else
-            -- Jika WindUI tidak support MultiSelect, gunakan logic toggle manual
-            State.ESP.Selected[v] = not State.ESP.Selected[v]
-        end
+        -- 'v' akan berisi table berisi semua yang dipilih
+        State.ESP.Selected = v
+        print("ESP Aktif untuk: " .. table.concat(v, ", "))
     end
 })
 ESPSection:Toggle({
