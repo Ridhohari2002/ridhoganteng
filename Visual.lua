@@ -40,41 +40,44 @@ local ESPSection = VisualTab:Section ({
 
 
 ESPSection:Dropdown({
-    Title = "Selected",
-    Values = {
-        {
-            Title = "Killer"
-        },
-        {
-            Title = "Survivor"
-        },
-        {
-            Title = "Generators"
-        },
-        {
-            Title = "Gates"
-        },
-        {
-            Title = "Pallets"
-        },
-        {
-            Title = "Windows"
-        },
-        {
-            Title = "Hooks"
-        },
-    }
+    Title = "Selected Entities",
+    MultiSelect = true, -- Pastikan WindUI versimu mendukung ini
+    Values = {"Killer", "Survivor", "Generators", "Gates", "Pallets", "Windows", "Hooks"},
+    Callback = function(v)
+        -- v biasanya berupa table jika MultiSelect aktif
+        if type(v) == "table" then
+            -- Reset semua dulu
+            for k in pairs(State.ESP.Selected) do State.ESP.Selected[k] = false end
+            -- Aktifkan yang dipilih
+            for _, name in pairs(v) do
+                if State.ESP.Selected[name] ~= nil then
+                    State.ESP.Selected[name] = true
+                end
+            end
+        else
+            -- Jika WindUI tidak support MultiSelect, gunakan logic toggle manual
+            State.ESP.Selected[v] = not State.ESP.Selected[v]
+        end
+    end
 })
 ESPSection:Toggle({
-    Title = "Enable",
+    Title = "Enable ESP",
+    Value = false,
+    Callback = function(v) State.ESP.Enabled = v end
 })
 ESPSection:Toggle({
-    Title = "Enable Names",
+    Title = "Show Names",
+    Value = false,
+    Callback = function(v) State.ESP.Names = v end
 })
 ESPSection:Toggle({
-    Title = "Enable Studs",
+    Title = "Show Distance (Studs)",
+    Value = false,
+    Callback = function(v) State.ESP.Studs = v end
 })
 ESPSection:Toggle({
-    Title = "Enable Health",
+    Title = "Show Health",
+    Value = false,
+    Callback = function(v) State.ESP.Health = v end
 })
 end
