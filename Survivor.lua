@@ -2,6 +2,7 @@ return function(Window, State, Players, RunService)
     print("Mencoba memuat Tab Survivor...")
 
     local LocalPlayer = Players.LocalPlayer
+    local State = _G.SharedState
 --=====================================================
 -- SURVIVOR
 --=====================================================
