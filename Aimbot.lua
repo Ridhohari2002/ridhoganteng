@@ -45,25 +45,4 @@ AimbotSettingSection:Keybind({
         State.AimbotKeybind = key
     end
 })
-
---=====================================================
--- INPUT HANDLER FOR AIMBOT
---=====================================================
-UserInputService.InputBegan:Connect(function(input, gpe)
-    if gpe then return end
-    if input.KeyCode == State.AimbotKeybind then
-        if State.AimbotToggleMode then
-            Aiming = not Aiming -- Mode Toggle
-        else
-            Aiming = true -- Mode Tahan
-        end
-    end
-end)
-
-UserInputService.InputEnded:Connect(function(input)
-    if input.KeyCode == State.AimbotKeybind and not State.AimbotToggleMode then
-        Aiming = false
-    end
-end)
-
 end
