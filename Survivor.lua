@@ -165,7 +165,7 @@ local function GetMyPlayerObject()
 end
 
 SvvAutoSkillSection:Toggle({
-    Title = "Fast Vault (3x Speed)",
+    Title = "Fast Vault (2x Speed)",
     Value = false,
     Callback = function(v)
         State.FastVault = v
@@ -173,7 +173,7 @@ SvvAutoSkillSection:Toggle({
         
         if myObj then
             if v then
-                myObj:SetAttribute("vaultspeed", 3)
+                myObj:SetAttribute("vaultspeed", 2)
                 print("🚀 Vault Speed 3x activated for:", LocalPlayer.Name)
             else
                 myObj:SetAttribute("vaultspeed", 1)
