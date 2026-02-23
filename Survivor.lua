@@ -173,10 +173,10 @@ SvvAutoSkillSection:Toggle({
         
         if myObj then
             if v then
-                myObj:SetAttribute("VaultSpeed", 3)
+                myObj:SetAttribute("vaultspeed", 3)
                 print("🚀 Vault Speed 3x activated for:", LocalPlayer.Name)
             else
-                myObj:SetAttribute("VaultSpeed", 1)
+                myObj:SetAttribute("vaultspeed", 1)
                 print("🔁 Vault Speed normal for:", LocalPlayer.Name)
             end
         else
@@ -189,8 +189,8 @@ SvvAutoSkillSection:Toggle({
 RunService.Heartbeat:Connect(function()
     if State.FastVault then
         local myObj = GetMyPlayerObject()
-        if myObj and myObj:GetAttribute("VaultSpeed") ~= 3 then
-            myObj:SetAttribute("VaultSpeed", 3)
+        if myObj and myObj:GetAttribute("vaultspeed") ~= 3 then
+            myObj:SetAttribute("vaultspeed", 3)
         end
     end
 end)
