@@ -17,16 +17,33 @@ local AimbotSettingSection = AimTab:Section({
 })
 AimbotSettingSection:Toggle({
     Title = "Enable Crosshair"
+    Value = false,
+    Callback = function(v)
+        State.EnableCrosshair = v
+    end
 })
 AimbotSettingSection:Toggle({
-    Title = "Enable Toggle"
+    Title = "Enable Toggle",
+    Desc = "On = Klik sekali | Off = Tahan tombol",
+    Value = false,
+    Callback = function(v)
+        State.AimbotToggleMode = v
+    end
 })
 AimbotSettingSection:Toggle({
-    Title = "Enable Through Wall"
+    Title = "Enable Through Wall",
+    Value = false,
+    Callback = function(v)
+        State.AimbotThroughWall = v
+    end
 })
 -- Set Keybind for user mobile on/off Aimbot Settings (Crosshair, Toggle, Through Wall)
 AimbotSettingSection:Keybind({
-    Title = "Set Keybind"
+    Title = "Set Keybind",
+    Default = Enum.KeyCode.E,
+    Callback = function(key)
+        State.AimbotKeybind = key
+    end
 })
 
 --=====================================================
