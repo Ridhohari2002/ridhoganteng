@@ -130,27 +130,6 @@ FeatureSkillCheckSection:Toggle({
     end
 })
 
---===================================================
--- Heal (jika knock atau down maka ini auto heal/recovery sendiri tanpa bantuan team)
-local HealSection = SurvivorTab:Section({
-    Title = "Heal Feature [💉]",
-    Opened = true
-}) 
-HealSection:Toggle({
-    Title = "Instant Self-Revive", -- biasanya jika saya knock pasti ada tulisan recovery kita bisa recovery sendiri tapi tidak bisa sampai selesai, dan harus butuh bantuan teman dulu agar kita gak knock lagi jadinya instant heal ini berfungsi tanpa recovery sendiri dan bantuan teman lagi langsung tidak knock lagi
-    Value = false,
-    Callback = function (v)
-        State.InstantHeal = v
-    end
-})
-HealSection:Toggle({
-    Title = "Silent Heal",
-    Value = false,
-    Callback = function (v)
-        State.SilentHeal = v
-    end
-})
-
 -- Tools
 local ToolsSection = SurvivorTab:Section({
     Title = "Tools",
