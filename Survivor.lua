@@ -155,11 +155,46 @@ SvvAutoSkillSection:Toggle({
     Value = false,
     Callback = function(v) State.AutoCrouch = v end
 })
+--// LOGIC: FAST VAULT - PLAYER OBJECT
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local function GetMyPlayerObject()
+    -- Langsung cari objek dengan nama persis LocalPlayer
+    return workspace:FindFirstChild(LocalPlayer.Name)
+end
+
 SvvAutoSkillSection:Toggle({
-    Title ="Fast Animations", --- khusus buat lompat di window ketika kita vault auto fast vault game:GetService("ReplicatedStorage").Remotes.Window.fastvault -- game:GetService("ReplicatedStorage").Remotes.Window.VaultEvent --game:GetService("ReplicatedStorage").Remotes.Window.VaultAnim --game:GetService("ReplicatedStorage").Remotes.Window.VaultCompleteEvent -- game:GetService("ReplicatedStorage").Remotes.Window.VaultCompleteEventpart1
+    Title = "Fast Vault (3x Speed)",
     Value = false,
-    Callback = function(v) State.FastVault = v end
+    Callback = function(v)
+        State.FastVault = v
+        local myObj = GetMyPlayerObject()
+        
+        if myObj then
+            if v then
+                myObj:SetAttribute("VaultSpeed", 3)
+                print("🚀 Vault Speed 3x activated for:", LocalPlayer.Name)
+            else
+                myObj:SetAttribute("VaultSpeed", 1)
+                print("🔁 Vault Speed normal for:", LocalPlayer.Name)
+            end
+        else
+            warn("Objek player tidak ditemukan di workspace:", LocalPlayer.Name)
+        end
+    end
 })
+
+-- Loop maintain
+RunService.Heartbeat:Connect(function()
+    if State.FastVault then
+        local myObj = GetMyPlayerObject()
+        if myObj and myObj:GetAttribute("VaultSpeed") ~= 3 then
+            myObj:SetAttribute("VaultSpeed", 3)
+        end
+    end
+end)
+
 SvvAutoSkillSection:Toggle({
     Title ="No Slowdown",
     Value = false,
