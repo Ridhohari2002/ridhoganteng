@@ -16,7 +16,7 @@ local AimbotSettingSection = AimTab:Section({
     Opened = true
 })
 AimbotSettingSection:Toggle({
-    Title = "Enable Crosshair"
+    Title = "Enable Crosshair",
     Value = false,
     Callback = function(v)
         State.EnableCrosshair = v
