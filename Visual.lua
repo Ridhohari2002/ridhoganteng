@@ -47,6 +47,20 @@ ESPSection:Dropdown({
         -- 'v' akan berisi table berisi semua yang dipilih
         State.ESP.Selected = v
         print("ESP Aktif untuk: " .. table.concat(v, ", "))
+        if not isEntitySelected("Killer") and not isEntitySelected("Survivor") then
+            for plr in pairs(highlights) do
+                if typeof(plr) == "Instance" and plr:IsA("Player") then
+                    if highlights[plr] then
+                        highlights[plr]:Destroy()
+                        highlights[plr] = nil
+                    end
+                    if labels[plr] then
+                        labels[plr].Parent:Destroy()
+                        labels[plr] = nil
+                    end
+                end
+            end
+        end
     end
 })
 ESPSection:Toggle({
