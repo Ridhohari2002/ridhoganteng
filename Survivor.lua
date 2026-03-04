@@ -165,7 +165,7 @@ local function GetMyPlayerObject()
 end
 
 SvvAutoSkillSection:Toggle({
-    Title = "Fast Vault (2x Speed)",
+    Title = "Fast Vault (3x Speed)",
     Value = false,
     Callback = function(v)
         State.FastVault = v
@@ -173,7 +173,7 @@ SvvAutoSkillSection:Toggle({
         
         if myObj then
             if v then
-                myObj:SetAttribute("vaultspeed", 2)
+                myObj:SetAttribute("vaultspeed", 1.5)
                 print("🚀 Vault Speed 3x activated for:", LocalPlayer.Name)
             else
                 myObj:SetAttribute("vaultspeed", 1)
@@ -230,7 +230,7 @@ DaggerSection:Slider({
     end
 })
 DaggerSection:Toggle({
-    Title = "Auto Parry",
+    Title = "Auto Parry", -- untuk menghidupkan atau matikan auto parry
     Value = false,
     Callback = function(v)
         State.AutoParry = v
@@ -270,4 +270,40 @@ MiscSurvivorSection:Button({
         WindUI:Notify({ Title = "Survivor", Content = "Gerbang dihapus secara lokal! Lu bisa lewat sekarang.", Duration = 3 })
     end
 })
+
+--// Masukkan ke dalam tabel State
+State.GodMode = false
+
+--// UI Section di WindUI
+local GodSection = SurvivorTab:Section({
+    Title = "Survival [🛡️]",
+    Opened = false
+})
+
+GodSection:Toggle({
+    Title = "God Mode (Anti-Death)",
+    Value = State.GodMode,
+    Callback = function(v)
+        State.GodMode = v
+    end
+})
+
+--// LOGIC GOD MODE
+RunService.Stepped:Connect(function()
+    if not State.GodMode then return end
+    
+    local char = LocalPlayer.Character
+    local hum = char and char:FindFirstChildOfClass("Humanoid")
+    
+    if hum then
+        -- 1. Mencegah kematian standar
+        hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+        
+        -- 2. Jika Health terlalu rendah, paksa naik sedikit agar tidak pingsan
+        -- (Tetap di bawah 100 agar tidak mencolok, tapi cukup untuk pakai dagger)
+        if hum.Health <= 1 then
+            hum.Health = 5 -- Menjaga tetap hidup di mata server
+        end
+    end
+end)
 end
