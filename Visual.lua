@@ -193,9 +193,15 @@ return function(Window, State, Players, RunService)
         genLabels[obj].Visible = true
     end
 
-    --=====================================================
-    -- GENERATOR DETECTION
-    --=====================================================
+--=====================================================
+-- GENERATOR DETECTION (FIXED)
+--=====================================================
+local map = workspace:FindFirstChild("Map") or workspace:WaitForChild("Map", 5)
+
+if not map then
+    warn("Folder 'Map' tidak ditemukan di Workspace! ESP Generator mungkin tidak bekerja.")
+    -- Return kosong agar tidak crash seluruh tab-nya
+else
     map.DescendantAdded:Connect(function(child)
         if child:IsA("Model") and child:GetAttribute("RepairProgress") ~= nil then
             trackedGens[child] = true
@@ -207,6 +213,7 @@ return function(Window, State, Players, RunService)
             trackedGens[obj] = true
         end
     end
+end
 
     --=====================================================
     -- SINGLE MAIN LOOP (Sangat Penting)
