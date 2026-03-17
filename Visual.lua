@@ -27,7 +27,7 @@ return function(Window, State, Players, RunService)
     -- Fullbright Logic (Placeholder)
     ScreenDisplaySection:Slider({
         Title = "Full Bright",
-        Value = { Min = 0, Max = 100, Default = 10 },
+        Value = { Min = 0, Max = 100, Default = 5 },
         Callback = function(v) State.FullBright = v end
     })
 
@@ -69,6 +69,10 @@ return function(Window, State, Players, RunService)
 
     --=====================================================
     -- LOGIKA CORE ESP (DIPERBAIKI)
+    --=====================================================
+
+    --=====================================================
+    -- LOGIKA CORE ESP KILLER DAN SURVIVOR
     --=====================================================
     local function updatePlayer(plr, currentCam)
         if not State.ESP.Enabled then
@@ -165,7 +169,9 @@ return function(Window, State, Players, RunService)
         txt.TextColor3 = color
         txt.Visible = (displayText ~= "")
     end
-
+    --=====================================================
+    -- LOGIKA CORE ESP GENERATOR
+    --=====================================================
     local function updateGen(obj, currentCam)
         local isEnabled = State.ESP.Enabled and table.find(State.ESP.Selected, "Generators")
         if not isEnabled then clearGenESP(obj) return end
@@ -178,7 +184,12 @@ return function(Window, State, Players, RunService)
             hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
             genHighlights[obj] = hl
         end
-        genHighlights[obj].FillColor = (progress >= 100) and Color3.new(0, 1, 0) or Color3.new(1, 1, 1)
+        local ratio = progress / 100
+        genHighlights[obj].FillColor = Color3.fromRGB(
+            255 * (1 - ratio),
+            255 * ratio,
+            50
+        )
 
         if not genLabels[obj] then
             local bill = Instance.new("BillboardGui", currentCam)
