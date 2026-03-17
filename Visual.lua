@@ -94,23 +94,23 @@ local function updatePlayer(plr, camera)
     end
 
     -- =====================================================
-    -- 1. IDENTIFIKASI ROLE (Kunci Utama Fix Warna)
+    -- 1. ROLE CHECK (Killer / Survivor)
     -- =====================================================
+    local killerAttr = plr:GetAttribute("SelectedKiller")
     local isKiller = false
-    
-    -- Cek Atribut khusus (Metode paling akurat di game ini)
-    if plr:GetAttribute("SelectedKiller") or (plr.Team and plr.Team.Name == "Killer") then
+    if (killerAttr and killerAttr ~= "" and killerAttr ~= "None") 
+        or (plr.Team and plr.Team.Name == "Killer") then
         isKiller = true
     end
 
     -- =====================================================
-    -- 2. FILTER DROPDOWN (Cek apakah user mau lihat Killer/Survivor)
+    -- 2. FILTER DROPDOWN
     -- =====================================================
     local isSelected = false
-    if isKiller and table.find(State.ESP.Selected, "Killer") then 
-        isSelected = true 
-    elseif not isKiller and table.find(State.ESP.Selected, "Survivor") then 
-        isSelected = true 
+    if isKiller and table.find(State.ESP.Selected, "Killer") then
+        isSelected = true
+    elseif not isKiller and table.find(State.ESP.Selected, "Survivor") then
+        isSelected = true
     end
 
     if not isSelected then
@@ -119,26 +119,24 @@ local function updatePlayer(plr, camera)
     end
 
     -- =====================================================
-    -- 3. PEWARNAAN (Survivor = Hijau, Killer = Merah)
+    -- 3. WARNA SESUAI ROLE
     -- =====================================================
-    local color = Color3.fromRGB(0, 255, 127) -- DEFAULT: Hijau (Survivor)
-
+    local color
     if isKiller then
-        color = Color3.fromRGB(255, 30, 30) -- KILLER: Merah Tajam
+        color = Color3.fromRGB(255, 30, 30) -- Killer merah
     else
-        -- STATUS KHUSUS SURVIVOR (Warna berubah jika bahaya)
+        color = Color3.fromRGB(0, 255, 127) -- Survivor hijau
+        -- Status khusus survivor
         if char:GetAttribute("IsHooked") then
-            color = Color3.fromRGB(255, 0, 0)   -- Merah (Lagi di Hook)
+            color = Color3.fromRGB(255, 0, 0)   -- Hooked merah
         elseif char:GetAttribute("Knocked") then
-            color = Color3.fromRGB(255, 150, 0) -- Orange (Lagi Sekarat)
+            color = Color3.fromRGB(255, 150, 0) -- Knocked orange
         end
     end
 
     -- =====================================================
     -- 4. RENDER VISUAL
     -- =====================================================
-    
-    -- HIGHLIGHT (Body Glow)
     if not highlights[plr] or not highlights[plr].Parent then
         local hl = Instance.new("Highlight")
         hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
@@ -150,7 +148,6 @@ local function updatePlayer(plr, camera)
     highlights[plr].FillColor = color
     highlights[plr].FillTransparency = 0.4
 
-    -- BILLBOARD (Nama & Info)
     if not labels[plr] or not labels[plr].Parent then
         local bill = Instance.new("BillboardGui")
         bill.Size = UDim2.new(0, 200, 0, 60)
@@ -170,15 +167,16 @@ local function updatePlayer(plr, camera)
 
     local txt = labels[plr]
     txt.Parent.Adornee = head
-    
-    -- Susun Teks
+
     local info = {}
     if State.ESP.Names then table.insert(info, plr.Name) end
-    if isKiller then 
-        table.insert(info, "👹 [" .. (plr:GetAttribute("SelectedKiller") or "Killer") .. "]")
+    if isKiller then
+        table.insert(info, "👹 [" .. (killerAttr or "Killer") .. "]")
     else
         local item = plr:GetAttribute("EquippedItem")
-        if item and item ~= "" and item ~= "None" then table.insert(info, "📦 ["..item.."]") end
+        if item and item ~= "" and item ~= "None" then
+            table.insert(info, "📦 ["..item.."]")
+        end
     end
     if State.ESP.Studs then
         local dist = math.floor((head.Position - camera.CFrame.Position).Magnitude)
