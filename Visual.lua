@@ -64,6 +64,7 @@ ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v)
     local highlights = {}
     local labels = {}
     local camera = workspace.CurrentCamera
+    if not camera then return end
 
     -- Fungsi untuk membersihkan ESP per player
     local function clearESP(plr)
