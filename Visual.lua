@@ -33,24 +33,6 @@ ScreenDisplaySection:Button({
     end
 })
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
-local highlights = {}
-local billhead = {} -- Untuk Nama & Distance (Atas Kepala)
-local billside = {} -- Untuk Killer Type / Weapon (Samping Badan)
-
-local function getCamera()
-    return workspace.CurrentCamera
-end
-
--- Fungsi hapus ESP
-local function clearESP(plr)
-    if highlights[plr] then highlights[plr]:Destroy(); highlights[plr] = nil end
-    if billhead[plr] then billhead[plr]:Destroy(); billhead[plr] = nil end
-    if billside[plr] then billside[plr]:Destroy(); billside[plr] = nil end
-end
-
 -- UI SETUP
 local ESPSection = VisualTab:Section ({ Title = "Seven Eye", Opened = true })
 
@@ -79,147 +61,143 @@ ESPSection:Toggle({ Title = "Show Names", Value = false, Callback = function(v) 
 ESPSection:Toggle({ Title = "Show Distance", Value = false, Callback = function(v) State.ESP.Studs = v end })
 ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v) State.ESP.Health = v end })
 
-local function updatePlayer(plr, camera, State)
-    local char = plr.Character
-    local root = char and char:FindFirstChild("HumanoidRootPart")
-    local head = char and char:FindFirstChild("Head")
+    local highlights = {}
+    local labels = {}
+    local camera = workspace.CurrentCamera
 
-    -- Jika ESP Mati atau Player tidak valid, bersihkan
-    if not State.ESP.Enabled or not char or not root or not head then
-        if highlights[plr] then highlights[plr].Enabled = false end
-        if billhead[plr] then billhead[plr].Enabled = false end
-        if billside[plr] then billside[plr].Enabled = false end
-        return
-    end
-
-    local team = plr.Team
-    local isKiller = (team and team.Name == "Killer")
-    local isSurvivor = (team and team.Name == "Survivors")
-
-    -----------------------------------------------------------
-    -- WARNA TAJAM (NEON)
-    -----------------------------------------------------------
-    local mainColor = Color3.fromRGB(255, 255, 255)
-    if isKiller then
-        mainColor = Color3.fromRGB(255, 0, 0) -- MERAH TERANG (PURE RED)
-    elseif isSurvivor then
-        local knocked = char:GetAttribute("Knocked")
-        local hooked = char:GetAttribute("IsHooked")
-        
-        if hooked then
-            mainColor = Color3.fromRGB(255, 0, 255) -- MAGENTA TERANG
-        elseif knocked then
-            mainColor = Color3.fromRGB(255, 150, 0) -- ORANYE TAJAM
-        else
-            mainColor = Color3.fromRGB(0, 255, 0) -- HIJAU TERANG (PURE LIME)
+    -- Fungsi untuk membersihkan ESP per player
+    local function clearESP(plr)
+        if highlights[plr] then
+            highlights[plr]:Destroy()
+            highlights[plr] = nil
+        end
+        if labels[plr] then
+            if labels[plr].Parent then labels[plr].Parent:Destroy() end
+            labels[plr] = nil
         end
     end
 
-    -----------------------------------------------------------
-    -- HIGHLIGHT (BODY GLOW)
-    -----------------------------------------------------------
-    if not highlights[plr] then
-        local hl = Instance.new("Highlight")
-        hl.Name = "ESP_Highlight"
-        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    local function updatePlayer(plr)
+        -- Jika ESP dimatikan secara global di UI, bersihkan dan stop
+        if not State.ESP.Enabled then
+            clearESP(plr)
+            return
+        end
+
+        local char = plr.Character
+        local head = char and char:FindFirstChild("Head")
+
+        -- Cek apakah karakter ada
+        if not char or not head then
+            if highlights[plr] then highlights[plr].Enabled = false end
+            if labels[plr] then labels[plr].Visible = false end
+            return
+        end
+
+        -- Cek Filter Tim dari Dropdown UI (State.ESP.Selected)
+        local team = plr.Team
+        local isKiller = (team and team.Name == "Killer")
+        local isSurvivor = (team and team.Name == "Survivors")
+
+        -- Logika Filter: Hanya tampilkan jika timnya dipilih di Dropdown UI
+        local isSelected = false
+        if isKiller and table.find(State.ESP.Selected, "Killer") then isSelected = true end
+        if isSurvivor and table.find(State.ESP.Selected, "Survivor") then isSelected = true end
+        
+        -- Jika tidak terpilih di UI, sembunyikan
+        if not isSelected then
+            clearESP(plr)
+            return
+        end
+
+        -----------------------------------------------------------
+        -- WARNA & STATUS (Sinkron dengan kondisi game)
+        -----------------------------------------------------------
+        local color = Color3.fromRGB(255, 255, 255)
+        local statusText = ""
+
+        if isKiller then
+            color = Color3.fromRGB(255, 80, 80)
+            statusText = "[" .. (plr:GetAttribute("SelectedKiller") or "Killer") .. "]"
+        elseif isSurvivor then
+            local knocked = char:GetAttribute("Knocked")
+            local hooked = char:GetAttribute("IsHooked")
+            local item = plr:GetAttribute("EquippedItem")
+
+            if hooked then color = Color3.fromRGB(255, 110, 80) 
+            elseif knocked then color = Color3.fromRGB(255, 170, 80)
+            else color = Color3.fromRGB(100, 255, 100) end
+
+            if item and item ~= "" and item ~= "None" then
+                statusText = "[" .. item .. "]"
+            end
+        end
+
+        -----------------------------------------------------------
+        -- RENDER HIGHLIGHT
+        -----------------------------------------------------------
+        if not highlights[plr] then
+            local hl = Instance.new("Highlight")
+            hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            hl.Parent = camera
+            highlights[plr] = hl
+        end
+        
+        local hl = highlights[plr]
+        hl.Adornee = char
+        hl.FillColor = color
         hl.FillTransparency = 0.4
-        hl.OutlineTransparency = 0 -- Outline Tebal
         hl.OutlineColor = Color3.new(1, 1, 1)
-        hl.Parent = camera
-        highlights[plr] = hl
-    end
-    highlights[plr].Enabled = true
-    highlights[plr].Adornee = char
-    highlights[plr].FillColor = mainColor
+        hl.Enabled = true
 
-    -----------------------------------------------------------
-    -- BILLBOARD ATAS KEPALA (Nama & Distance)
-    -----------------------------------------------------------
-    if not billhead[plr] then
-        local b = Instance.new("BillboardGui")
-        b.Size = UDim2.new(0, 150, 0, 50)
-        b.StudsOffset = Vector3.new(0, 1.5, 0) -- Jarak Dekat di Atas Kepala
-        b.AlwaysOnTop = true
-        b.Parent = camera
-        
-        local t = Instance.new("TextLabel", b)
-        t.Size = UDim2.new(1, 0, 1, 0)
-        t.BackgroundTransparency = 1
-        t.Font = Enum.Font.RobotoMono -- Font lebih tegas
-        t.TextSize = 11 -- Text diperkecil sesuai request
-        t.TextStrokeTransparency = 0
-        t.TextStrokeColor3 = Color3.new(0, 0, 0)
-        billhead[plr] = b
-    end
-    
-    local nameLabel = billhead[plr].TextLabel
-    billhead[plr].Enabled = true
-    billhead[plr].Adornee = head
-    
-    local distText = ""
-    if State.ESP.Studs then
-        local lpChar = Players.LocalPlayer.Character
-        local lpRoot = lpChar and lpChar:FindFirstChild("HumanoidRootPart")
-        if lpRoot then
-            local d = math.floor((root.Position - lpRoot.Position).Magnitude)
-            distText = " [" .. d .. "m]"
+        -----------------------------------------------------------
+        -- RENDER TEXT (Name, Dist, Health)
+        -----------------------------------------------------------
+        if not labels[plr] then
+            local bill = Instance.new("BillboardGui")
+            bill.Size = UDim2.new(0, 200, 0, 50)
+            bill.StudsOffset = Vector3.new(0, 3, 0)
+            bill.AlwaysOnTop = true
+            bill.Parent = camera
+
+            local txt = Instance.new("TextLabel")
+            txt.Size = UDim2.new(1, 0, 1, 0)
+            txt.BackgroundTransparency = 1
+            txt.Font = Enum.Font.SourceSansBold
+            txt.TextSize = 14
+            txt.TextStrokeTransparency = 0
+            txt.Parent = bill
+            labels[plr] = txt
         end
-    end
-    nameLabel.Text = (State.ESP.Names and plr.Name or "") .. distText
-    nameLabel.TextColor3 = mainColor
 
-    -----------------------------------------------------------
-    -- BILLBOARD SAMPING (Killer Type / Weapon)
-    -----------------------------------------------------------
-    if not billside[plr] then
-        local b = Instance.new("BillboardGui")
-        b.Size = UDim2.new(0, 150, 0, 50)
-        b.StudsOffset = Vector3.new(2.5, 0, 0) -- Ditaruh di Samping Badan
-        b.AlwaysOnTop = true
-        b.Parent = camera
+        local txt = labels[plr]
+        local dist = ""
+        local name = State.ESP.Names and plr.Name or ""
         
-        local t = Instance.new("TextLabel", b)
-        t.Size = UDim2.new(1, 0, 1, 0)
-        t.BackgroundTransparency = 1
-        t.Font = Enum.Font.SourceSansBold
-        t.TextSize = 12
-        t.TextStrokeTransparency = 0
-        t.TextXAlignment = Enum.TextXAlignment.Left
-        billside[plr] = b
+        -- Sinkronisasi Jarak (UI Toggle: State.ESP.Studs)
+        if State.ESP.Studs then
+            local myRoot = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if myRoot then
+                local d = math.floor((head.Position - myRoot.Position).Magnitude)
+                dist = " [" .. d .. "m]"
+            end
+        end
+
+        -- Update Text Final
+        txt.Visible = true
+        txt.TextColor3 = color
+        txt.Text = string.format("%s%s\n%s", name, dist, statusText)
     end
 
-    local sideLabel = billside[plr].TextLabel
-    billside[plr].Enabled = true
-    billside[plr].Adornee = root
-    
-    local infoText = ""
-    if isKiller then
-        local kType = plr:GetAttribute("SelectedKiller") or "Killer"
-        infoText = "TYPE: " .. kType
-    elseif isSurvivor then
-        local weapon = plr:GetAttribute("EquippedItem") or "None"
-        if weapon ~= "None" and weapon ~= "" then
-            infoText = "WEAPON: " .. weapon
+    -- Loop Utama
+    RunService.RenderStepped:Connect(function()
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= Players.LocalPlayer then
+                updatePlayer(plr)
+            end
         end
-    end
-    sideLabel.Text = infoText
-    sideLabel.TextColor3 = Color3.new(1, 1, 1) -- Info samping warna putih agar jelas
+    end)
+
+    -- Cleanup saat player keluar
+    Players.PlayerRemoving:Connect(clearESP)
 end
-
-----------------------------------------------------------------
--- RUN LOOP
-----------------------------------------------------------------
-RunService.RenderStepped:Connect(function()
-    local cam = getCamera()
-    if not cam then return end
-
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= Players.LocalPlayer then
-            updatePlayer(plr, cam, _G.SharedState)
-        end
-    end
-end)
-
--- Cleanup
-Players.PlayerRemoving:Connect(clearESP)
-
