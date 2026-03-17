@@ -82,7 +82,6 @@ ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v)
 -- LOGIC ESP (PLAYER & KILLER)
 --=====================================================
     local function updatePlayer(plr, camera)
-        -- Jika ESP dimatikan di UI, hapus dan stop
         if not State.ESP.Enabled then 
             clearESP(plr)
             return 
@@ -98,39 +97,60 @@ ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v)
             return
         end
 
-        -- Ambil Tim
+        -- 1. DETEKSI TIM & ROLE
         local team = plr.Team
-        local isKiller = (team and team.Name == "Killer") or plr:GetAttribute("SelectedKiller")
+        local isKiller = false
         
-        -- Filter berdasarkan Dropdown UI (Selected Entities)
+        -- Cek berdasarkan Nama Tim atau Atribut Game
+        if (team and team.Name == "Killer") or plr:GetAttribute("SelectedKiller") then
+            isKiller = true
+        end
+
+        -- 2. FILTER DROPDOWN UI
         local isSelected = false
-        if isKiller and table.find(State.ESP.Selected, "Killer") then isSelected = true end
-        if not isKiller and table.find(State.ESP.Selected, "Survivor") then isSelected = true end
+        if isKiller and table.find(State.ESP.Selected, "Killer") then 
+            isSelected = true 
+        elseif not isKiller and table.find(State.ESP.Selected, "Survivor") then 
+            isSelected = true 
+        end
 
         if not isSelected then
             clearESP(plr)
             return
         end
 
-        -- Tentukan Warna
-        local color = isKiller and Color3.fromRGB(255, 80, 80) or Color3.fromRGB(100, 255, 100)
-        if not isKiller then
-            if char:GetAttribute("IsHooked") then color = Color3.fromRGB(255, 0, 0)
-            elseif char:GetAttribute("Knocked") then color = Color3.fromRGB(255, 165, 0) end
+        -- 3. LOGIKA PEWARNAAN (SURVIVOR = HIJAU, KILLER = MERAH)
+        local color = Color3.fromRGB(100, 255, 100) -- Default Hijau (Survivor)
+
+        if isKiller then
+            color = Color3.fromRGB(255, 50, 50) -- Merah Terang (Killer)
+        else
+            -- Warna Khusus Status Survivor
+            if char:GetAttribute("IsHooked") then 
+                color = Color3.fromRGB(255, 0, 0)   -- Merah Tua (Terpaku/Hooked)
+            elseif char:GetAttribute("Knocked") then 
+                color = Color3.fromRGB(255, 150, 0) -- Orange (Tergeletak/Knocked)
+            elseif hum.Health < 50 then
+                color = Color3.fromRGB(255, 255, 0) -- Kuning (Darah Rendah)
+            end
         end
 
-        -- 1. Create/Update Highlight
+        -- 4. UPDATE HIGHLIGHT
         if not highlights[plr] or not highlights[plr].Parent then
             local hl = Instance.new("Highlight")
             hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            hl.OutlineColor = Color3.new(1, 1, 1)
             hl.Parent = camera
             highlights[plr] = hl
         end
-        highlights[plr].Adornee = char
-        highlights[plr].FillColor = color
-        highlights[plr].FillTransparency = 0.4
+        
+        local hl = highlights[plr]
+        hl.Adornee = char
+        hl.FillColor = color
+        hl.FillTransparency = 0.4
+        hl.OutlineTransparency = 0
 
-        -- 2. Create/Update Billboard (Nama & Info)
+        -- 5. UPDATE BILLBOARD UI (INFO TEXT)
         if not labels[plr] or not labels[plr].Parent then
             local bill = Instance.new("BillboardGui")
             bill.Size = UDim2.new(0, 200, 0, 50)
@@ -143,7 +163,7 @@ ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v)
             txt.BackgroundTransparency = 1
             txt.Font = Enum.Font.SourceSansBold
             txt.TextSize = 14
-            txt.TextStrokeTransparency = 0
+            txt.TextStrokeTransparency = 0.2
             txt.Parent = bill
             labels[plr] = txt
         end
@@ -151,26 +171,29 @@ ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v)
         local txt = labels[plr]
         txt.Parent.Adornee = head
 
-        -- Build Text berdasarkan Toggle UI
-        local info = ""
-        if State.ESP.Names then info = info .. plr.Name .. "\n" end
+        -- Bangun teks berdasarkan Toggle UI
+        local infoRows = {}
+        
+        if State.ESP.Names then 
+            table.insert(infoRows, plr.Name) 
+        end
         
         if isKiller then
-            info = info .. "[" .. (plr:GetAttribute("SelectedKiller") or "Killer") .. "]\n"
+            local kName = plr:GetAttribute("SelectedKiller") or "Killer"
+            table.insert(infoRows, "[" .. kName .. "]")
         elseif State.ESP.Health then
-            info = info .. "HP: " .. math.floor(hum.Health) .. "%\n"
+            table.insert(infoRows, "HP: " .. math.floor(hum.Health) .. "%")
         end
 
         if State.ESP.Studs then
             local dist = math.floor((head.Position - camera.CFrame.Position).Magnitude)
-            info = info .. "[" .. dist .. "m]"
+            table.insert(infoRows, "[" .. dist .. "m]")
         end
 
-        txt.Text = info
+        txt.Text = table.concat(infoRows, "\n")
         txt.TextColor3 = color
         txt.Visible = true
     end
-
     -- Loop Update
     local espLoop
     espLoop = RunService.Heartbeat:Connect(function()
