@@ -158,7 +158,7 @@ ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v)
             bill.Size = UDim2.new(0, 200, 0, 50)
             bill.StudsOffset = Vector3.new(0, 3, 0)
             bill.AlwaysOnTop = true
-            bill.Parent = camera
+            bill.Parent = camera -- Pastikan masuk ke Camera agar tidak hilang saat mati
 
             local txt = Instance.new("TextLabel")
             txt.Size = UDim2.new(1, 0, 1, 0)
@@ -171,23 +171,39 @@ ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v)
         end
 
         local txt = labels[plr]
-        local dist = ""
-        local name = State.ESP.Names and plr.Name or ""
+        local bill = txt.Parent
         
-        -- Sinkronisasi Jarak (UI Toggle: State.ESP.Studs)
+        -- VALIDASI: Pastikan BillGui menempel ke kepala player
+        bill.Adornee = head
+        
+        local displayText = ""
+        
+        -- 1. Nama (Cek State UI)
+        if State.ESP.Names then
+            displayText = plr.Name
+        end
+
+        -- 2. Jarak (Cek State UI)
         if State.ESP.Studs then
-            local myRoot = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            local myChar = Players.LocalPlayer.Character
+            local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
             if myRoot then
                 local d = math.floor((head.Position - myRoot.Position).Magnitude)
-                dist = " [" .. d .. "m]"
+                displayText = displayText .. " [" .. d .. "m]"
             end
         end
 
-        -- Update Text Final
-        txt.Visible = true
+        -- 3. Tambahkan Status (Item/Killer Name) di baris baru
+        if statusText ~= "" then
+            displayText = displayText .. "\n" .. statusText
+        end
+
+        -- Update Final Text
+        txt.Text = displayText
         txt.TextColor3 = color
-        txt.Text = string.format("%s%s\n%s", name, dist, statusText)
-    end
+        
+        -- Sembunyikan jika tidak ada yang diaktifkan sama sekali
+        txt.Visible = (State.ESP.Names or State.ESP.Studs or statusText ~= "")
 
     -- Loop Utama
     RunService.RenderStepped:Connect(function()
