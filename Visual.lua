@@ -1,72 +1,35 @@
 return function(Window, State, Players, RunService)
-    print("Mencoba memuat Tab Aimbot...")
+    print("Mencoba memuat Tab Visual...")
     local State = _G.SharedState
---=====================================================
--- VISUAL
---=====================================================
-local VisualTab = Window:Tab({ 
-    Title = "Visual", 
-    Icon = "lucide:eye"
-})
 
-local ScreenDisplaySection = VisualTab:Section ({
-    Title = "Screen Display",
-    Opened = true
-})
-ScreenDisplaySection:Slider({
-    Title = "Full Bright",
-    Value = {
-        Min = 0,
-        Max = 100,
-        Default = 10,
-    },
-    Callback = function(v)
-        State.FullBright = v
-        UpdateLighting()
-    end
-})
-ScreenDisplaySection:Button({
-    Title = "No Fog",
-    Callback = function()
-        DisableFog()
-        print("Fog Removed!")
-    end
-})
+    --=====================================================
+    -- UI SETUP (Sesuai dengan UI kamu)
+    --=====================================================
+    local VisualTab = Window:Tab({ Title = "Visual", Icon = "lucide:eye" })
 
--- UI SETUP
-local ESPSection = VisualTab:Section ({ Title = "Seven Eye", Opened = true })
-
-ESPSection:Dropdown({
-    Title = "Selected Entities",
-    Multi = true,
-    Values = {"Killer", "Survivor", "Generators", "Gates", "Pallets", "Windows", "Hooks"},
-    Callback = function(v) State.ESP.Selected = v end
-})
-
-ESPSection:Toggle({
-        Title = "Enable ESP",
-        Value = State.ESP.Enabled or false,
-        Callback = function(v) 
-            State.ESP.Enabled = v 
-            if not v then
-                -- Bersihkan semua ESP saat toggle dimatikan
-                for _, plr in ipairs(Players:GetPlayers()) do
-                    clearESP(plr)
-                end
-            end
-        end
+    local ScreenDisplaySection = VisualTab:Section ({ Title = "Screen Display", Opened = true })
+    
+    -- Fullbright Logic (Placeholder)
+    ScreenDisplaySection:Slider({
+        Title = "Full Bright",
+        Value = { Min = 0, Max = 100, Default = 10 },
+        Callback = function(v) State.FullBright = v end
     })
 
-ESPSection:Toggle({ Title = "Show Names", Value = false, Callback = function(v) State.ESP.Names = v end })
-ESPSection:Toggle({ Title = "Show Distance", Value = false, Callback = function(v) State.ESP.Studs = v end })
-ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v) State.ESP.Health = v end })
+    local ESPSection = VisualTab:Section ({ Title = "Seven Eye", Opened = true })
 
+    ESPSection:Dropdown({
+        Title = "Selected Entities",
+        Multi = true,
+        Values = {"Killer", "Survivor", "Generators", "Gates", "Pallets", "Windows", "Hooks"},
+        Callback = function(v) State.ESP.Selected = v end
+    })
+
+    -- Variabel penyimpanan internal agar tidak error nil
     local highlights = {}
     local labels = {}
-    local camera = workspace.CurrentCamera
-    if not camera then return end
 
-    -- Fungsi untuk membersihkan ESP per player
+    -- Fungsi Pembersih
     local function clearESP(plr)
         if highlights[plr] then
             highlights[plr]:Destroy()
@@ -78,8 +41,25 @@ ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v)
         end
     end
 
-    local function updatePlayer(plr)
-        -- Jika ESP dimatikan secara global di UI, bersihkan dan stop
+    ESPSection:Toggle({
+        Title = "Enable ESP",
+        Value = State.ESP.Enabled or false,
+        Callback = function(v) 
+            State.ESP.Enabled = v 
+            if not v then
+                for _, plr in ipairs(Players:GetPlayers()) do clearESP(plr) end
+            end
+        end
+    })
+
+    ESPSection:Toggle({ Title = "Show Names", Value = false, Callback = function(v) State.ESP.Names = v end })
+    ESPSection:Toggle({ Title = "Show Distance", Value = false, Callback = function(v) State.ESP.Studs = v end })
+    ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v) State.ESP.Health = v end })
+
+    --=====================================================
+    -- LOGIKA CORE ESP (DIPERBAIKI)
+    --=====================================================
+    local function updatePlayer(plr, currentCam)
         if not State.ESP.Enabled then
             clearESP(plr)
             return
@@ -88,32 +68,27 @@ ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v)
         local char = plr.Character
         local head = char and char:FindFirstChild("Head")
 
-        -- Cek apakah karakter ada
         if not char or not head then
             if highlights[plr] then highlights[plr].Enabled = false end
             if labels[plr] then labels[plr].Visible = false end
             return
         end
 
-        -- Cek Filter Tim dari Dropdown UI (State.ESP.Selected)
+        -- Filter Tim
         local team = plr.Team
         local isKiller = (team and team.Name == "Killer")
         local isSurvivor = (team and team.Name == "Survivors")
 
-        -- Logika Filter: Hanya tampilkan jika timnya dipilih di Dropdown UI
         local isSelected = false
         if isKiller and table.find(State.ESP.Selected, "Killer") then isSelected = true end
         if isSurvivor and table.find(State.ESP.Selected, "Survivor") then isSelected = true end
         
-        -- Jika tidak terpilih di UI, sembunyikan
         if not isSelected then
             clearESP(plr)
             return
         end
 
-        -----------------------------------------------------------
-        -- WARNA & STATUS (Sinkron dengan kondisi game)
-        -----------------------------------------------------------
+        -- Warna & Status
         local color = Color3.fromRGB(255, 255, 255)
         local statusText = ""
 
@@ -129,38 +104,28 @@ ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v)
             elseif knocked then color = Color3.fromRGB(255, 170, 80)
             else color = Color3.fromRGB(100, 255, 100) end
 
-            if item and item ~= "" and item ~= "None" then
-                statusText = "[" .. item .. "]"
-            end
+            if item and item ~= "" and item ~= "None" then statusText = "[" .. item .. "]" end
         end
 
-        -----------------------------------------------------------
-        -- RENDER HIGHLIGHT
-        -----------------------------------------------------------
+        -- Render Highlight (Gunakan currentCam yang dioper dari loop)
         if not highlights[plr] then
             local hl = Instance.new("Highlight")
             hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-            hl.Parent = camera
+            hl.Parent = currentCam -- INI PERBAIKANNYA
             highlights[plr] = hl
         end
-        
-        local hl = highlights[plr]
-        hl.Adornee = char
-        hl.FillColor = color
-        hl.FillTransparency = 0.4
-        hl.OutlineColor = Color3.new(1, 1, 1)
-        hl.Enabled = true
+        highlights[plr].Adornee = char
+        highlights[plr].FillColor = color
+        highlights[plr].Enabled = true
 
-        -----------------------------------------------------------
-        -- RENDER TEXT (Name, Dist, Health)
-        -----------------------------------------------------------
+        -- Render Billboard (Text)
         if not labels[plr] then
             local bill = Instance.new("BillboardGui")
             bill.Size = UDim2.new(0, 200, 0, 50)
             bill.StudsOffset = Vector3.new(0, 3, 0)
             bill.AlwaysOnTop = true
-            bill.Parent = camera -- Pastikan masuk ke Camera agar tidak hilang saat mati
-
+            bill.Parent = currentCam -- INI PERBAIKANNYA
+            
             local txt = Instance.new("TextLabel")
             txt.Size = UDim2.new(1, 0, 1, 0)
             txt.BackgroundTransparency = 1
@@ -172,49 +137,35 @@ ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v)
         end
 
         local txt = labels[plr]
-        local bill = txt.Parent
-        
-        -- VALIDASI: Pastikan BillGui menempel ke kepala player
-        bill.Adornee = head
+        txt.Parent.Adornee = head
         
         local displayText = ""
-        
-        -- 1. Nama (Cek State UI)
-        if State.ESP.Names then
-            displayText = plr.Name
-        end
-
-        -- 2. Jarak (Cek State UI)
+        if State.ESP.Names then displayText = plr.Name end
         if State.ESP.Studs then
-            local myChar = Players.LocalPlayer.Character
-            local myRoot = myChar and myChar:FindFirstChild("HumanoidRootPart")
+            local myRoot = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
             if myRoot then
                 local d = math.floor((head.Position - myRoot.Position).Magnitude)
-                displayText = displayText .. " [" .. d .. "m]"
+                displayText = (displayText ~= "" and displayText .. " " or "") .. "[" .. d .. "m]"
             end
         end
+        if statusText ~= "" then displayText = (displayText ~= "" and displayText .. "\n" or "") .. statusText end
 
-        -- 3. Tambahkan Status (Item/Killer Name) di baris baru
-        if statusText ~= "" then
-            displayText = displayText .. "\n" .. statusText
-        end
-
-        -- Update Final Text
         txt.Text = displayText
         txt.TextColor3 = color
-        
-        -- Sembunyikan jika tidak ada yang diaktifkan sama sekali
-        txt.Visible = (State.ESP.Names or State.ESP.Studs or statusText ~= "")
+        txt.Visible = (displayText ~= "")
+    end
 
-    -- Loop Utama
+    -- LOOP UTAMA: Mengambil kamera terbaru setiap frame
     RunService.RenderStepped:Connect(function()
+        local currentCam = workspace.CurrentCamera
+        if not currentCam then return end -- Guard clause jika kamera nil
+
         for _, plr in ipairs(Players:GetPlayers()) do
             if plr ~= Players.LocalPlayer then
-                updatePlayer(plr)
+                updatePlayer(plr, currentCam)
             end
         end
     end)
 
-    -- Cleanup saat player keluar
     Players.PlayerRemoving:Connect(clearESP)
 end
