@@ -1,6 +1,8 @@
 return function(Window, State, Players, RunService)
     print("Mencoba memuat Tab Aimbot...")
     local State = _G.SharedState
+    State.ESP = State.ESP or {}
+    State.ESP.Selected = State.ESP.Selected or {}
 --=====================================================
 -- VISUAL
 --=====================================================
@@ -33,22 +35,33 @@ ScreenDisplaySection:Button({
     end
 })
 
--- Local variables untuk mempermudah akses
+--=====================================================
+-- VARIABLES
+--=====================================================
     local LocalPlayer = Players.LocalPlayer
+    local Camera = workspace.CurrentCamera
+    local CoreGui = game:GetService("CoreGui")
+
     local highlights = {}
     local labels = {}
 
-    -- Fungsi untuk membersihkan ESP
+    --=====================================================
+    -- CLEAN FUNCTION
+    --=====================================================
     local function clearESP(plr)
         if highlights[plr] then
             highlights[plr]:Destroy()
             highlights[plr] = nil
         end
+
         if labels[plr] then
-            if labels[plr].Parent then labels[plr].Parent:Destroy() end
+            if labels[plr].Parent then
+                labels[plr].Parent:Destroy()
+            end
             labels[plr] = nil
         end
     end
+
 
 -- UI SETUP
 local ESPSection = VisualTab:Section ({ Title = "Seven Eye", Opened = true })
@@ -78,129 +91,142 @@ ESPSection:Toggle({ Title = "Show Names", Value = false, Callback = function(v) 
 ESPSection:Toggle({ Title = "Show Distance", Value = false, Callback = function(v) State.ESP.Studs = v end })
 ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v) State.ESP.Health = v end })
 
-local function updatePlayer(plr, camera)
-    if not State.ESP.Enabled then 
-        clearESP(plr)
-        return 
-    end
+ --=====================================================
+    -- CREATE ESP
+    --=====================================================
+    local function createESP(plr)
+        if not highlights[plr] then
+            local hl = Instance.new("Highlight")
+            hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            hl.FillTransparency = 0.4
+            hl.OutlineColor = Color3.new(1,1,1)
+            hl.Parent = CoreGui
+            highlights[plr] = hl
+        end
 
-    local char = plr.Character
-    local head = char and char:FindFirstChild("Head")
-    local hum = char and char:FindFirstChildOfClass("Humanoid")
+        if not labels[plr] then
+            local bill = Instance.new("BillboardGui")
+            bill.Size = UDim2.new(0, 200, 0, 50)
+            bill.StudsOffset = Vector3.new(0, 4, 0)
+            bill.AlwaysOnTop = true
+            bill.Parent = CoreGui
 
-    if not char or not head or not hum then
-        if highlights[plr] then highlights[plr].Adornee = nil end
-        return
-    end
+            local txt = Instance.new("TextLabel")
+            txt.Size = UDim2.new(1,0,1,0)
+            txt.BackgroundTransparency = 1
+            txt.Font = Enum.Font.SourceSansBold
+            txt.TextSize = 14
+            txt.TextStrokeTransparency = 0
+            txt.Parent = bill
 
-    -- =====================================================
-    -- 1. ROLE CHECK (Killer / Survivor)
-    -- =====================================================
-    local killerAttr = plr:GetAttribute("SelectedKiller")
-    local isKiller = false
-    if (killerAttr and killerAttr ~= "" and killerAttr ~= "None") 
-        or (plr.Team and plr.Team.Name == "Killer") then
-        isKiller = true
-    end
-
-    -- =====================================================
-    -- 2. FILTER DROPDOWN
-    -- =====================================================
-    local isSelected = false
-    if isKiller and table.find(State.ESP.Selected, "Killer") then
-        isSelected = true
-    elseif not isKiller and table.find(State.ESP.Selected, "Survivor") then
-        isSelected = true
-    end
-
-    if not isSelected then
-        clearESP(plr)
-        return
-    end
-
-    -- =====================================================
-    -- 3. WARNA SESUAI ROLE
-    -- =====================================================
-    local color
-    if isKiller then
-        color = Color3.fromRGB(255, 30, 30) -- Killer merah
-    else
-        color = Color3.fromRGB(0, 255, 127) -- Survivor hijau
-        -- Status khusus survivor
-        if char:GetAttribute("IsHooked") then
-            color = Color3.fromRGB(255, 0, 0)   -- Hooked merah
-        elseif char:GetAttribute("Knocked") then
-            color = Color3.fromRGB(255, 150, 0) -- Knocked orange
+            labels[plr] = txt
         end
     end
 
-    -- =====================================================
-    -- 4. RENDER VISUAL
-    -- =====================================================
-    if not highlights[plr] or not highlights[plr].Parent then
-        local hl = Instance.new("Highlight")
-        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-        hl.OutlineColor = Color3.new(1, 1, 1)
-        hl.Parent = camera
-        highlights[plr] = hl
-    end
-    highlights[plr].Adornee = char
-    highlights[plr].FillColor = color
-    highlights[plr].FillTransparency = 0.4
-
-    if not labels[plr] or not labels[plr].Parent then
-        local bill = Instance.new("BillboardGui")
-        bill.Size = UDim2.new(0, 200, 0, 60)
-        bill.StudsOffset = Vector3.new(0, 4.5, 0)
-        bill.AlwaysOnTop = true
-        bill.Parent = camera
-
-        local txt = Instance.new("TextLabel")
-        txt.Size = UDim2.new(1, 0, 1, 0)
-        txt.BackgroundTransparency = 1
-        txt.Font = Enum.Font.SourceSansBold
-        txt.TextSize = 14
-        txt.TextStrokeTransparency = 0
-        txt.Parent = bill
-        labels[plr] = txt
-    end
-
-    local txt = labels[plr]
-    txt.Parent.Adornee = head
-
-    local info = {}
-    if State.ESP.Names then table.insert(info, plr.Name) end
-    if isKiller then
-        table.insert(info, "👹 [" .. (killerAttr or "Killer") .. "]")
-    else
-        local item = plr:GetAttribute("EquippedItem")
-        if item and item ~= "" and item ~= "None" then
-            table.insert(info, "📦 ["..item.."]")
+    --=====================================================
+    -- UPDATE PLAYER
+    --=====================================================
+    local function updatePlayer(plr)
+        if not State.ESP.Enabled then
+            clearESP(plr)
+            return
         end
-    end
-    if State.ESP.Studs then
-        local dist = math.floor((head.Position - camera.CFrame.Position).Magnitude)
-        table.insert(info, "📏 " .. dist .. "m")
+
+        local char = plr.Character
+        local head = char and char:FindFirstChild("Head")
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+
+        if not char or not head or not hum then
+            clearESP(plr)
+            return
+        end
+
+        -- ROLE CHECK
+        local killerAttr = plr:GetAttribute("SelectedKiller")
+        local isKiller = (killerAttr and killerAttr ~= "" and killerAttr ~= "None")
+            or (plr.Team and plr.Team.Name == "Killer")
+
+        local selected = State.ESP.Selected or {}
+
+        local allowed =
+            (isKiller and table.find(selected, "Killer")) or
+            (not isKiller and table.find(selected, "Survivor"))
+
+        if not allowed then
+            clearESP(plr)
+            return
+        end
+
+        createESP(plr)
+
+        -- COLOR
+        local color
+        if isKiller then
+            color = Color3.fromRGB(255, 50, 50)
+        else
+            color = Color3.fromRGB(0, 255, 120)
+
+            if char:GetAttribute("IsHooked") then
+                color = Color3.fromRGB(255, 0, 0)
+            elseif char:GetAttribute("Knocked") then
+                color = Color3.fromRGB(255, 150, 0)
+            end
+        end
+
+        -- APPLY
+        local hl = highlights[plr]
+        hl.Adornee = char
+        hl.FillColor = color
+
+        local txt = labels[plr]
+        txt.Parent.Adornee = head
+
+        local info = {}
+
+        if State.ESP.Names then
+            table.insert(info, plr.Name)
+        end
+
+        if State.ESP.Distance then
+            local dist = math.floor((head.Position - Camera.CFrame.Position).Magnitude)
+            table.insert(info, dist .. "m")
+        end
+
+        txt.Text = table.concat(info, "\n")
+        txt.TextColor3 = color
     end
 
-    txt.Text = table.concat(info, "\n")
-    txt.TextColor3 = color
-end
-    -- Loop Update
-    local espLoop
-    espLoop = RunService.Heartbeat:Connect(function()
-        local camera = workspace.CurrentCamera
-        if not camera then return end
+    --=====================================================
+    -- LOOP (OPTIMIZED)
+    --=====================================================
+    local running = true
 
-        for _, plr in ipairs(Players:GetPlayers()) do
-            if plr ~= LocalPlayer then
-                updatePlayer(plr, camera)
+    task.spawn(function()
+        while running do
+            task.wait(0.1) -- 🔥 lebih ringan dari Heartbeat
+
+            if not Camera then
+                Camera = workspace.CurrentCamera
+            end
+
+            for _, plr in ipairs(Players:GetPlayers()) do
+                if plr ~= LocalPlayer then
+                    updatePlayer(plr)
+                end
             end
         end
     end)
 
-    -- Cleanup saat script di-unload
+    --=====================================================
+    -- EVENTS
+    --=====================================================
     Players.PlayerRemoving:Connect(clearESP)
-    
-    print("ESP Player berhasil dimuat!")
+
+    Players.PlayerAdded:Connect(function(plr)
+        plr.CharacterAdded:Connect(function()
+            clearESP(plr)
+        end)
+    end)
+
+    print("ESP Optimized Loaded ✅")
 end
