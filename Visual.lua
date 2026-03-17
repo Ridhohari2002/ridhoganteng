@@ -319,7 +319,7 @@ return function(Window, State, Players, RunService)
             end
             
             for pallet in pairs (trackedPallets) do
-                if pallet.Parent then updatePallet(pallet, currentCam) else trackedPallets[pallet] = nill end
+                if pallet.Parent then updatePallet(pallet, currentCam) else trackedPallets[pallet] = nil end
             end
         end
 
