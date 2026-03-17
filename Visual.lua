@@ -169,3 +169,135 @@ return function(Window, State, Players, RunService)
 
     Players.PlayerRemoving:Connect(clearESP)
 end
+
+--=====================================================
+-- LOGIKA ESP GENERATOR (SINKRON UI)
+--=====================================================
+local genHighlights = {}
+local genLabels = {}
+local trackedGens = {}
+local map = workspace:WaitForChild("Map")
+
+-- Fungsi Bersih Generator
+local function clearGenESP(obj)
+    if genHighlights[obj] then genHighlights[obj]:Destroy() genHighlights[obj] = nil end
+    if genLabels[obj] then 
+        if genLabels[obj].Parent then genLabels[obj].Parent:Destroy() end
+        genLabels[obj] = nil 
+    end
+end
+
+local function updateGen(obj, currentCam)
+    -- Cek Toggle Utama & Dropdown UI
+    local isEnabled = State.ESP.Enabled and table.find(State.ESP.Selected, "Generators")
+    
+    if not isEnabled then
+        clearGenESP(obj)
+        return
+    end
+
+    if not obj:IsA("Model") or obj:GetAttribute("RepairProgress") == nil then return end
+
+    local progress  = obj:GetAttribute("RepairProgress") or 0
+    local repairing = obj:GetAttribute("PlayersRepairingCount") or 0
+    local isFull = progress >= 100
+
+    -- 1. RENDER HIGHLIGHT
+    if not genHighlights[obj] then
+        local hl = Instance.new("Highlight")
+        hl.Adornee = obj
+        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        hl.FillTransparency = 0.5
+        hl.Parent = currentCam
+        genHighlights[obj] = hl
+    end
+
+    local hl = genHighlights[obj]
+    hl.Enabled = true
+    hl.FillColor = isFull and Color3.fromRGB(0, 255, 0) or Color3.new(1, 1, 1)
+    hl.OutlineColor = hl.FillColor
+
+    -- 2. RENDER TEXT
+    local attach = obj:FindFirstChild("defaultMaterial") or obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart")
+    if not attach then return end
+
+    if not genLabels[obj] then
+        local bill = Instance.new("BillboardGui")
+        bill.Adornee = attach
+        bill.Size = UDim2.new(0, 170, 0, 38)
+        bill.StudsOffset = Vector3.new(0, 4, 0)
+        bill.AlwaysOnTop = true
+        bill.Parent = currentCam
+
+        local txt = Instance.new("TextLabel")
+        txt.Size = UDim2.new(1,0,1,0)
+        txt.BackgroundTransparency = 1
+        txt.TextSize = 14
+        txt.Font = Enum.Font.SourceSansSemibold
+        txt.TextStrokeTransparency = 0.4
+        txt.Parent = bill
+        genLabels[obj] = txt
+    end
+
+    local txt = genLabels[obj]
+    txt.Visible = true
+
+    if isFull then
+        txt.Text = "Generator\n100.0%"
+        txt.TextColor3 = Color3.fromRGB(0, 255, 0)
+    else
+        local gradient = math.clamp(progress / 100, 0, 1)
+        txt.TextColor3 = Color3.new(1 - gradient * 0.7, 1, 1 - gradient * 0.7)
+        txt.Text = repairing > 0 
+            and string.format("Generator\n%.1f%% [%d]", progress, repairing)
+            or string.format("Generator\n%.1f%%", progress)
+    end
+end
+
+--=====================================================
+-- LOOP & DETEKSI GENERATOR
+--=====================================================
+
+-- Deteksi Generator Baru
+map.DescendantAdded:Connect(function(child)
+    if child:IsA("Model") and child:GetAttribute("RepairProgress") ~= nil then
+        trackedGens[child] = true
+    end
+end)
+
+-- Hapus saat generator hilang dari map
+map.DescendantRemoving:Connect(function(child)
+    if trackedGens[child] then
+        clearGenESP(child)
+        trackedGens[child] = nil
+    end
+end)
+
+-- Scan Awal
+for _, obj in ipairs(map:GetDescendants()) do
+    if obj:IsA("Model") and obj:GetAttribute("RepairProgress") ~= nil then
+        trackedGens[obj] = true
+    end
+end
+
+-- Masukkan ke dalam Loop RenderStepped yang sudah ada di Visual.lua
+RunService.RenderStepped:Connect(function()
+    local currentCam = workspace.CurrentCamera
+    if not currentCam then return end
+
+    -- Loop Players (Sudah ada di kode sebelumnya)
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= Players.LocalPlayer then
+            updatePlayer(plr, currentCam) -- Fungsi player yang kita buat tadi
+        end
+    end
+
+    -- Loop Generators (TAMBAHAN BARU)
+    for gen in pairs(trackedGens) do
+        if gen and gen.Parent then 
+            updateGen(gen, currentCam) 
+        else
+            trackedGens[gen] = nil
+        end
+    end
+end)
