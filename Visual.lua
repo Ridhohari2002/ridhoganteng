@@ -84,25 +84,40 @@ return function(Window, State, Players, RunService)
         local isSelected = (isKiller and table.find(State.ESP.Selected, "Killer")) or (isSurvivor and table.find(State.ESP.Selected, "Survivor"))
         if not isSelected then clearESP(plr) return end
 
-        -- Warna & Status
-        local color = Color3.fromRGB(255, 255, 255)
-        local statusText = ""
+    -----------------------------------------------------------
+    -- LOGIKA WARNA & STATUS (YANG TADI HILANG)
+    -----------------------------------------------------------
+    local color = Color3.fromRGB(255, 255, 255)
+    local statusText = ""
 
-        if isKiller then
-            color = Color3.fromRGB(255, 80, 80)
-            statusText = "[" .. (plr:GetAttribute("SelectedKiller") or "Killer") .. "]"
-        elseif isSurvivor then
-            local knocked = char:GetAttribute("Knocked")
-            local hooked = char:GetAttribute("IsHooked")
-            local item = plr:GetAttribute("EquippedItem")
+    if isKiller then
+        color = Color3.fromRGB(255, 80, 80) -- Merah Killer
+        statusText = "[" .. (plr:GetAttribute("SelectedKiller") or "Killer") .. "]"
+    elseif isSurvivor then
+        local knocked = char:GetAttribute("Knocked")
+        local hooked = char:GetAttribute("IsHooked")
+        local item = plr:GetAttribute("EquippedItem")
 
-            if hooked then color = Color3.fromRGB(255, 110, 80) 
-            elseif knocked then color = Color3.fromRGB(255, 170, 80)
-            else color = Color3.fromRGB(100, 255, 100) end
-
-            if item and item ~= "" and item ~= "None" then statusText = "[" .. item .. "]" end
+        if hooked then 
+            color = Color3.fromRGB(255, 110, 80) -- Merah agak orange (Hooked)
+            statusText = "[HOOKED]"
+        elseif knocked then 
+            color = Color3.fromRGB(255, 170, 80) -- Orange (Knocked)
+            statusText = "[KNOCKED]"
+        else 
+            color = Color3.fromRGB(100, 255, 100) -- Hijau (Sehat)
         end
 
+        -- Tambahin nama item kalau ada
+        if item and item ~= "" and item ~= "None" then 
+            statusText = statusText ~= "" and statusText .. " [" .. item .. "]" or "[" .. item .. "]"
+        end
+    end    
+
+    -----------------------------------------------------------
+    -- RENDER ESP
+    -----------------------------------------------------------
+    -- Highlight
         if not highlights[plr] then
             local hl = Instance.new("Highlight")
             hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
