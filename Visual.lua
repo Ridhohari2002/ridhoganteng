@@ -167,9 +167,6 @@ return function(Window, State, Players, RunService)
         end
     end)
 
-    Players.PlayerRemoving:Connect(clearESP)
-end
-
 --=====================================================
 -- LOGIKA ESP GENERATOR (SINKRON UI)
 --=====================================================
@@ -301,3 +298,7 @@ RunService.RenderStepped:Connect(function()
         end
     end
 end)
+
+    Players.PlayerRemoving:Connect(clearESP)
+end
+
