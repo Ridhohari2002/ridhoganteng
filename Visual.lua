@@ -79,7 +79,6 @@ ESPSection:Toggle({ Title = "Show Distance", Value = false, Callback = function(
 ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v) State.ESP.Health = v end })
 
 local function updatePlayer(plr, camera)
-    -- 1. VALIDASI AWAL
     if not State.ESP.Enabled then 
         clearESP(plr)
         return 
@@ -89,21 +88,24 @@ local function updatePlayer(plr, camera)
     local head = char and char:FindFirstChild("Head")
     local hum = char and char:FindFirstChildOfClass("Humanoid")
 
-    if not char or not head or not hum or hum.Health <= 0 then
+    if not char or not head or not hum then
         if highlights[plr] then highlights[plr].Adornee = nil end
-        if labels[plr] then labels[plr].Parent.Adornee = nil end
         return
     end
 
-    -- 2. PENENTUAN ROLE (KILLER VS SURVIVOR)
-    local team = plr.Team
+    -- =====================================================
+    -- 1. IDENTIFIKASI ROLE (Kunci Utama Fix Warna)
+    -- =====================================================
     local isKiller = false
     
-    if (team and team.Name == "Killer") or plr:GetAttribute("SelectedKiller") then
+    -- Cek Atribut khusus (Metode paling akurat di game ini)
+    if plr:GetAttribute("SelectedKiller") or (plr.Team and plr.Team.Name == "Killer") then
         isKiller = true
     end
 
-    -- 3. FILTER SELECTION (Dropdown WindUI)
+    -- =====================================================
+    -- 2. FILTER DROPDOWN (Cek apakah user mau lihat Killer/Survivor)
+    -- =====================================================
     local isSelected = false
     if isKiller and table.find(State.ESP.Selected, "Killer") then 
         isSelected = true 
@@ -116,58 +118,27 @@ local function updatePlayer(plr, camera)
         return
     end
 
-    -- 4. LOGIKA PEWARNAAN & TEXT FORMATTING
-    local color = Color3.fromRGB(0, 255, 127) -- Default Hijau (Survivor)
-    local infoRows = {}
+    -- =====================================================
+    -- 3. PEWARNAAN (Survivor = Hijau, Killer = Merah)
+    -- =====================================================
+    local color = Color3.fromRGB(0, 255, 127) -- DEFAULT: Hijau (Survivor)
 
     if isKiller then
-        -----------------------------------------
-        -- FORMAT KILLER (MERAH)
-        -----------------------------------------
-        color = Color3.fromRGB(255, 30, 30) 
-        if State.ESP.Names then table.insert(infoRows, plr.Name) end
-        
-        local kName = plr:GetAttribute("SelectedKiller") or "Killer"
-        table.insert(infoRows, "👹 [" .. kName .. "]")
+        color = Color3.fromRGB(255, 30, 30) -- KILLER: Merah Tajam
     else
-        -----------------------------------------
-        -- FORMAT SURVIVOR (HIJAU)
-        -----------------------------------------
-        local hooked = char:GetAttribute("IsHooked")
-        local knocked = char:GetAttribute("Knocked")
-
-        -- Warna Berdasarkan Status
-        if hooked then
-            color = Color3.fromRGB(255, 0, 0)   -- Merah (Hooked)
-        elseif knocked then
-            color = Color3.fromRGB(255, 150, 0) -- Orange (Knocked)
-        end
-
-        if State.ESP.Names then table.insert(infoRows, plr.Name) end
-        
-        -- Info Item
-        local item = plr:GetAttribute("EquippedItem")
-        if item and item ~= "" and item ~= "None" then
-            table.insert(infoRows, "📦 [" .. item .. "]")
-        end
-
-        -- Info Health (Jika Toggle Aktif)
-        if State.ESP.Health then
-            table.insert(infoRows, "HP: " .. math.floor(hum.Health) .. "%")
+        -- STATUS KHUSUS SURVIVOR (Warna berubah jika bahaya)
+        if char:GetAttribute("IsHooked") then
+            color = Color3.fromRGB(255, 0, 0)   -- Merah (Lagi di Hook)
+        elseif char:GetAttribute("Knocked") then
+            color = Color3.fromRGB(255, 150, 0) -- Orange (Lagi Sekarat)
         end
     end
 
-    -- Tambahkan Jarak (Jika Toggle Aktif)
-    if State.ESP.Studs then
-        local dist = math.floor((head.Position - camera.CFrame.Position).Magnitude)
-        table.insert(infoRows, "📏 " .. dist .. "m")
-    end
-
-    -----------------------------------------
-    -- 5. RENDER VISUAL (HIGHLIGHT & TEXT)
-    -----------------------------------------
+    -- =====================================================
+    -- 4. RENDER VISUAL
+    -- =====================================================
     
-    -- Update Highlight (Body Glow)
+    -- HIGHLIGHT (Body Glow)
     if not highlights[plr] or not highlights[plr].Parent then
         local hl = Instance.new("Highlight")
         hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
@@ -179,11 +150,11 @@ local function updatePlayer(plr, camera)
     highlights[plr].FillColor = color
     highlights[plr].FillTransparency = 0.4
 
-    -- Update Billboard (Text Info)
+    -- BILLBOARD (Nama & Info)
     if not labels[plr] or not labels[plr].Parent then
         local bill = Instance.new("BillboardGui")
         bill.Size = UDim2.new(0, 200, 0, 60)
-        bill.StudsOffset = Vector3.new(0, 4.5, 0) -- Di atas kepala
+        bill.StudsOffset = Vector3.new(0, 4.5, 0)
         bill.AlwaysOnTop = true
         bill.Parent = camera
 
@@ -199,24 +170,21 @@ local function updatePlayer(plr, camera)
 
     local txt = labels[plr]
     txt.Parent.Adornee = head
-    txt.Text = table.concat(infoRows, "\n")
-    txt.TextColor3 = color
-end
-    -- Loop Update
-    local espLoop
-    espLoop = RunService.Heartbeat:Connect(function()
-        local camera = workspace.CurrentCamera
-        if not camera then return end
-
-        for _, plr in ipairs(Players:GetPlayers()) do
-            if plr ~= LocalPlayer then
-                updatePlayer(plr, camera)
-            end
-        end
-    end)
-
-    -- Cleanup saat script di-unload
-    Players.PlayerRemoving:Connect(clearESP)
     
-    print("ESP Player berhasil dimuat!")
+    -- Susun Teks
+    local info = {}
+    if State.ESP.Names then table.insert(info, plr.Name) end
+    if isKiller then 
+        table.insert(info, "👹 [" .. (plr:GetAttribute("SelectedKiller") or "Killer") .. "]")
+    else
+        local item = plr:GetAttribute("EquippedItem")
+        if item and item ~= "" and item ~= "None" then table.insert(info, "📦 ["..item.."]") end
+    end
+    if State.ESP.Studs then
+        local dist = math.floor((head.Position - camera.CFrame.Position).Magnitude)
+        table.insert(info, "📏 " .. dist .. "m")
+    end
+
+    txt.Text = table.concat(info, "\n")
+    txt.TextColor3 = color
 end
