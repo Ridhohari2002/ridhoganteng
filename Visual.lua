@@ -188,3 +188,21 @@ local function updatePlayer(plr, camera)
     txt.Text = table.concat(info, "\n")
     txt.TextColor3 = color
 end
+    -- Loop Update
+    local espLoop
+    espLoop = RunService.Heartbeat:Connect(function()
+        local camera = workspace.CurrentCamera
+        if not camera then return end
+
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if plr ~= LocalPlayer then
+                updatePlayer(plr, camera)
+            end
+        end
+    end)
+
+    -- Cleanup saat script di-unload
+    Players.PlayerRemoving:Connect(clearESP)
+    
+    print("ESP Player berhasil dimuat!")
+end
