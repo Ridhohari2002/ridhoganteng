@@ -85,34 +85,62 @@ return function(Window, State, Players, RunService)
         if not isSelected then clearESP(plr) return end
 
     -----------------------------------------------------------
-    -- LOGIKA WARNA & STATUS (YANG TADI HILANG)
+    -- LOGIKA WARNA & STATUS (ENHANCED)
     -----------------------------------------------------------
     local color = Color3.fromRGB(255, 255, 255)
     local statusText = ""
+    local hum = char:FindFirstChildOfClass("Humanoid")
 
     if isKiller then
-        color = Color3.fromRGB(255, 80, 80) -- Merah Killer
-        statusText = "[" .. (plr:GetAttribute("SelectedKiller") or "Killer") .. "]"
+        color = Color3.fromRGB(255, 80, 80)
+        local killerName = plr:GetAttribute("SelectedKiller") or "Killer"
+        statusText = "[" .. killerName .. "]"
     elseif isSurvivor then
-        local knocked = char:GetAttribute("Knocked")
-        local hooked = char:GetAttribute("IsHooked")
-        local item = plr:GetAttribute("EquippedItem")
+        -- Coba ambil attribute
+        local knocked = char:GetAttribute("Knocked") or char:GetAttribute("IsKnocked")
+        local hooked = char:GetAttribute("IsHooked") or char:GetAttribute("Hooked")
+        local item = plr:GetAttribute("EquippedItem") or plr:GetAttribute("Item")
 
-        if hooked then 
-            color = Color3.fromRGB(255, 110, 80) -- Merah agak orange (Hooked)
+        -- Logic Prioritas Status
+        if hooked == true then 
+            color = Color3.fromRGB(255, 110, 80)
             statusText = "[HOOKED]"
-        elseif knocked then 
-            color = Color3.fromRGB(255, 170, 80) -- Orange (Knocked)
+        elseif knocked == true then 
+            color = Color3.fromRGB(255, 170, 80)
             statusText = "[KNOCKED]"
+        elseif hum and hum.Health <= 0 then
+            color = Color3.fromRGB(150, 150, 150)
+            statusText = "[DEAD]"
         else 
-            color = Color3.fromRGB(100, 255, 100) -- Hijau (Sehat)
+            color = Color3.fromRGB(100, 255, 100)
+            -- Kalau sehat, baru tampilin Item (biar gak numpuk pas Hooked)
+            if item and item ~= "" and item ~= "None" then 
+                statusText = "[" .. tostring(item) .. "]"
+            end
         end
+    end
 
-        -- Tambahin nama item kalau ada
-        if item and item ~= "" and item ~= "None" then 
-            statusText = statusText ~= "" and statusText .. " [" .. item .. "]" or "[" .. item .. "]"
-        end
-    end    
+    -----------------------------------------------------------
+    -- FIX TAMPILAN (Pastikan muncul meski Nama dimatikan)
+    -----------------------------------------------------------
+    local nameStr = State.ESP.Names and plr.Name or ""
+    local distStr = State.ESP.Studs and " ["..math.floor((head.Position - currentCam.CFrame.Position).Magnitude).."m]" or ""
+    
+    -- Gabungin: Jika nama mati, minimal munculin Jarak + Status
+    local line1 = nameStr .. distStr
+    local finalDisplayText = ""
+
+    if line1 ~= "" and statusText ~= "" then
+        finalDisplayText = line1 .. "\n" .. statusText
+    elseif line1 ~= "" then
+        finalDisplayText = line1
+    else
+        finalDisplayText = statusText
+    end
+
+    txt.Text = finalDisplayText
+    txt.TextColor3 = color
+    txt.Visible = (finalDisplayText ~= "")
 
     -----------------------------------------------------------
     -- RENDER ESP
