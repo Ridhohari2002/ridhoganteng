@@ -2,14 +2,8 @@ return function(Window, State, Players, RunService)
     print("Memuat Module Visual...")
     local State = _G.SharedState
     
-    -- Safety check untuk folder Map agar tidak error DescendantAdded
-    local map = workspace:FindFirstChild("Map") 
-    if not map then
-        -- Jika tidak ketemu, coba tunggu sebentar (max 3 detik)
-        map = workspace:WaitForChild("Map", 3)
-    end
+    local map = workspace:FindFirstChild("Map") or workspace:WaitForChild("Map", 3)
 
-    -- Storage
     local highlights = {}
     local labels = {}
     local genHighlights = {}
@@ -49,9 +43,6 @@ return function(Window, State, Players, RunService)
         if genLabels[obj] then if genLabels[obj].Parent then genLabels[obj].Parent:Destroy() end genLabels[obj] = nil end
     end
 
-    --=====================================================
-    -- TOGGLES
-    --=====================================================
     ESPSection:Toggle({
         Title = "Enable ESP",
         Value = State.ESP.Enabled or false,
@@ -75,6 +66,7 @@ return function(Window, State, Players, RunService)
         
         local char = plr.Character
         local head = char and char:FindFirstChild("Head")
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
         if not char or not head then return end
 
         local team = plr.Team
@@ -84,68 +76,34 @@ return function(Window, State, Players, RunService)
         local isSelected = (isKiller and table.find(State.ESP.Selected, "Killer")) or (isSurvivor and table.find(State.ESP.Selected, "Survivor"))
         if not isSelected then clearESP(plr) return end
 
-    -----------------------------------------------------------
-    -- LOGIKA WARNA & STATUS (ENHANCED)
-    -----------------------------------------------------------
-    local color = Color3.fromRGB(255, 255, 255)
-    local statusText = ""
-    local hum = char:FindFirstChildOfClass("Humanoid")
+        -- 1. TENTUKAN WARNA & STATUS (LOGIKA SURVIVOR)
+        local color = Color3.fromRGB(255, 255, 255)
+        local statusText = ""
 
-    if isKiller then
-        color = Color3.fromRGB(255, 80, 80)
-        local killerName = plr:GetAttribute("SelectedKiller") or "Killer"
-        statusText = "[" .. killerName .. "]"
-    elseif isSurvivor then
-        -- Coba ambil attribute
-        local knocked = char:GetAttribute("Knocked") or char:GetAttribute("IsKnocked")
-        local hooked = char:GetAttribute("IsHooked") or char:GetAttribute("Hooked")
-        local item = plr:GetAttribute("EquippedItem") or plr:GetAttribute("Item")
+        if isKiller then
+            color = Color3.fromRGB(255, 80, 80)
+            statusText = "[" .. (plr:GetAttribute("SelectedKiller") or "Killer") .. "]"
+        elseif isSurvivor then
+            local knocked = char:GetAttribute("Knocked") or char:GetAttribute("IsKnocked")
+            local hooked = char:GetAttribute("IsHooked") or char:GetAttribute("Hooked")
+            local item = plr:GetAttribute("EquippedItem") or plr:GetAttribute("Item")
 
-        -- Logic Prioritas Status
-        if hooked == true then 
-            color = Color3.fromRGB(255, 110, 80)
-            statusText = "[HOOKED]"
-        elseif knocked == true then 
-            color = Color3.fromRGB(255, 170, 80)
-            statusText = "[KNOCKED]"
-        elseif hum and hum.Health <= 0 then
-            color = Color3.fromRGB(150, 150, 150)
-            statusText = "[DEAD]"
-        else 
-            color = Color3.fromRGB(100, 255, 100)
-            -- Kalau sehat, baru tampilin Item (biar gak numpuk pas Hooked)
-            if item and item ~= "" and item ~= "None" then 
-                statusText = "[" .. tostring(item) .. "]"
+            if hooked then 
+                color = Color3.fromRGB(255, 110, 80)
+                statusText = "[HOOKED]"
+            elseif knocked then 
+                color = Color3.fromRGB(255, 170, 80)
+                statusText = "[KNOCKED]"
+            elseif hum and hum.Health <= 0 then
+                color = Color3.fromRGB(150, 150, 150)
+                statusText = "[DEAD]"
+            else 
+                color = Color3.fromRGB(100, 255, 100)
+                if item and item ~= "" and item ~= "None" then statusText = "[" .. tostring(item) .. "]" end
             end
         end
-    end
 
-    -----------------------------------------------------------
-    -- FIX TAMPILAN (Pastikan muncul meski Nama dimatikan)
-    -----------------------------------------------------------
-    local nameStr = State.ESP.Names and plr.Name or ""
-    local distStr = State.ESP.Studs and " ["..math.floor((head.Position - currentCam.CFrame.Position).Magnitude).."m]" or ""
-    
-    -- Gabungin: Jika nama mati, minimal munculin Jarak + Status
-    local line1 = nameStr .. distStr
-    local finalDisplayText = ""
-
-    if line1 ~= "" and statusText ~= "" then
-        finalDisplayText = line1 .. "\n" .. statusText
-    elseif line1 ~= "" then
-        finalDisplayText = line1
-    else
-        finalDisplayText = statusText
-    end
-
-    txt.Text = finalDisplayText
-    txt.TextColor3 = color
-    txt.Visible = (finalDisplayText ~= "")
-
-    -----------------------------------------------------------
-    -- RENDER ESP
-    -----------------------------------------------------------
-    -- Highlight
+        -- 2. BUAT/UPDATE HIGHLIGHT
         if not highlights[plr] then
             local hl = Instance.new("Highlight")
             hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
@@ -153,25 +111,39 @@ return function(Window, State, Players, RunService)
             highlights[plr] = hl
         end
         highlights[plr].Adornee = char
-        highlights[plr].FillColor = isKiller and Color3.fromRGB(255, 80, 80) or Color3.fromRGB(100, 255, 100)
+        highlights[plr].FillColor = color
+        highlights[plr].Enabled = true
 
+        -- 3. BUAT/UPDATE BILLBOARD (TEXT)
         if not labels[plr] then
             local bill = Instance.new("BillboardGui", currentCam)
             bill.Size = UDim2.new(0, 200, 0, 50)
             bill.AlwaysOnTop = true
-            local txt = Instance.new("TextLabel", bill)
-            txt.Size = UDim2.new(1, 0, 1, 0)
-            txt.BackgroundTransparency = 1
-            txt.Font = Enum.Font.SourceSansBold
-            txt.TextSize = 14
-            txt.TextStrokeTransparency = 0
-            labels[plr] = txt
+            
+            local txtLabel = Instance.new("TextLabel", bill)
+            txtLabel.Size = UDim2.new(1, 0, 1, 0)
+            txtLabel.BackgroundTransparency = 1
+            txtLabel.Font = Enum.Font.SourceSansBold
+            txtLabel.TextSize = 14
+            txtLabel.TextStrokeTransparency = 0
+            labels[plr] = txtLabel
         end
-        labels[plr].Parent.Adornee = head
+
+        local txt = labels[plr]
+        txt.Parent.Adornee = head
+        
+        -- Hitung Jarak & Susun Teks
+        local nameStr = State.ESP.Names and plr.Name or ""
         local distStr = State.ESP.Studs and " ["..math.floor((head.Position - currentCam.CFrame.Position).Magnitude).."m]" or ""
-        labels[plr].Text = (State.ESP.Names and plr.Name or "")..distStr
-        labels[plr].TextColor3 = highlights[plr].FillColor
-        labels[plr].Visible = true
+        local finalDisplayText = (nameStr .. distStr)
+        
+        if statusText ~= "" then
+            finalDisplayText = (finalDisplayText ~= "" and finalDisplayText .. "\n" .. statusText or statusText)
+        end
+
+        txt.Text = finalDisplayText
+        txt.TextColor3 = color
+        txt.Visible = (finalDisplayText ~= "")
     end
 
     local function updateGen(obj, currentCam)
@@ -207,34 +179,25 @@ return function(Window, State, Players, RunService)
     end
 
     --=====================================================
-    -- GENERATOR DETECTION & MAIN LOOP
+    -- DETEKSI & LOOP
     --=====================================================
     if map then
         map.DescendantAdded:Connect(function(child)
-            if child:IsA("Model") and child:GetAttribute("RepairProgress") ~= nil then
-                trackedGens[child] = true
-            end
+            if child:IsA("Model") and child:GetAttribute("RepairProgress") ~= nil then trackedGens[child] = true end
         end)
-
         for _, obj in ipairs(map:GetDescendants()) do
-            if obj:IsA("Model") and obj:GetAttribute("RepairProgress") ~= nil then
-                trackedGens[obj] = true
-            end
+            if obj:IsA("Model") and obj:GetAttribute("RepairProgress") ~= nil then trackedGens[obj] = true end
         end
-    else
-        warn("Violence District: Folder 'Map' tidak ditemukan. ESP Generator dinonaktifkan.")
     end
 
     RunService.RenderStepped:Connect(function()
         local currentCam = workspace.CurrentCamera
         if not currentCam then return end
 
-        -- Players
         for _, plr in ipairs(Players:GetPlayers()) do
             if plr ~= Players.LocalPlayer then updatePlayer(plr, currentCam) end
         end
 
-        -- Generators (Hanya jalan jika folder map ada)
         if map then
             for gen in pairs(trackedGens) do
                 if gen and gen.Parent then updateGen(gen, currentCam) else trackedGens[gen] = nil end
