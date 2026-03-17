@@ -1,8 +1,6 @@
 return function(Window, State, Players, RunService)
     print("Mencoba memuat Tab Aimbot...")
     local State = _G.SharedState
-    State.ESP = State.ESP or {}
-    State.ESP.Selected = State.ESP.Selected or {}
 --=====================================================
 -- VISUAL
 --=====================================================
@@ -35,33 +33,23 @@ ScreenDisplaySection:Button({
     end
 })
 
---=====================================================
--- VARIABLES
---=====================================================
-    local LocalPlayer = Players.LocalPlayer
-    local Camera = workspace.CurrentCamera
-    local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
-    local highlights = {}
-    local labels = {}
+local highlights = {}
+local billhead = {} -- Untuk Nama & Distance (Atas Kepala)
+local billside = {} -- Untuk Killer Type / Weapon (Samping Badan)
 
-    --=====================================================
-    -- CLEAN FUNCTION
-    --=====================================================
-    local function clearESP(plr)
-        if highlights[plr] then
-            highlights[plr]:Destroy()
-            highlights[plr] = nil
-        end
+local function getCamera()
+    return workspace.CurrentCamera
+end
 
-        if labels[plr] then
-            if labels[plr].Parent then
-                labels[plr].Parent:Destroy()
-            end
-            labels[plr] = nil
-        end
-    end
-
+-- Fungsi hapus ESP
+local function clearESP(plr)
+    if highlights[plr] then highlights[plr]:Destroy(); highlights[plr] = nil end
+    if billhead[plr] then billhead[plr]:Destroy(); billhead[plr] = nil end
+    if billside[plr] then billside[plr]:Destroy(); billside[plr] = nil end
+end
 
 -- UI SETUP
 local ESPSection = VisualTab:Section ({ Title = "Seven Eye", Opened = true })
@@ -91,142 +79,147 @@ ESPSection:Toggle({ Title = "Show Names", Value = false, Callback = function(v) 
 ESPSection:Toggle({ Title = "Show Distance", Value = false, Callback = function(v) State.ESP.Studs = v end })
 ESPSection:Toggle({ Title = "Show Health", Value = false, Callback = function(v) State.ESP.Health = v end })
 
- --=====================================================
-    -- CREATE ESP
-    --=====================================================
-    local function createESP(plr)
-        if not highlights[plr] then
-            local hl = Instance.new("Highlight")
-            hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-            hl.FillTransparency = 0.4
-            hl.OutlineColor = Color3.new(1,1,1)
-            hl.Parent = CoreGui
-            highlights[plr] = hl
-        end
+local function updatePlayer(plr, camera, State)
+    local char = plr.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    local head = char and char:FindFirstChild("Head")
 
-        if not labels[plr] then
-            local bill = Instance.new("BillboardGui")
-            bill.Size = UDim2.new(0, 200, 0, 50)
-            bill.StudsOffset = Vector3.new(0, 4, 0)
-            bill.AlwaysOnTop = true
-            bill.Parent = CoreGui
-
-            local txt = Instance.new("TextLabel")
-            txt.Size = UDim2.new(1,0,1,0)
-            txt.BackgroundTransparency = 1
-            txt.Font = Enum.Font.SourceSansBold
-            txt.TextSize = 14
-            txt.TextStrokeTransparency = 0
-            txt.Parent = bill
-
-            labels[plr] = txt
-        end
+    -- Jika ESP Mati atau Player tidak valid, bersihkan
+    if not State.ESP.Enabled or not char or not root or not head then
+        if highlights[plr] then highlights[plr].Enabled = false end
+        if billhead[plr] then billhead[plr].Enabled = false end
+        if billside[plr] then billside[plr].Enabled = false end
+        return
     end
 
-    --=====================================================
-    -- UPDATE PLAYER
-    --=====================================================
-    local function updatePlayer(plr)
-        if not State.ESP.Enabled then
-            clearESP(plr)
-            return
-        end
+    local team = plr.Team
+    local isKiller = (team and team.Name == "Killer")
+    local isSurvivor = (team and team.Name == "Survivors")
 
-        local char = plr.Character
-        local head = char and char:FindFirstChild("Head")
-        local hum = char and char:FindFirstChildOfClass("Humanoid")
-
-        if not char or not head or not hum then
-            clearESP(plr)
-            return
-        end
-
-        -- ROLE CHECK
-        local killerAttr = plr:GetAttribute("SelectedKiller")
-        local isKiller = (killerAttr and killerAttr ~= "" and killerAttr ~= "None")
-            or (plr.Team and plr.Team.Name == "Killer")
-
-        local selected = State.ESP.Selected or {}
-
-        local allowed =
-            (isKiller and table.find(selected, "Killer")) or
-            (not isKiller and table.find(selected, "Survivor"))
-
-        if not allowed then
-            clearESP(plr)
-            return
-        end
-
-        createESP(plr)
-
-        -- COLOR
-        local color
-        if isKiller then
-            color = Color3.fromRGB(255, 50, 50)
+    -----------------------------------------------------------
+    -- WARNA TAJAM (NEON)
+    -----------------------------------------------------------
+    local mainColor = Color3.fromRGB(255, 255, 255)
+    if isKiller then
+        mainColor = Color3.fromRGB(255, 0, 0) -- MERAH TERANG (PURE RED)
+    elseif isSurvivor then
+        local knocked = char:GetAttribute("Knocked")
+        local hooked = char:GetAttribute("IsHooked")
+        
+        if hooked then
+            mainColor = Color3.fromRGB(255, 0, 255) -- MAGENTA TERANG
+        elseif knocked then
+            mainColor = Color3.fromRGB(255, 150, 0) -- ORANYE TAJAM
         else
-            color = Color3.fromRGB(0, 255, 120)
-
-            if char:GetAttribute("IsHooked") then
-                color = Color3.fromRGB(255, 0, 0)
-            elseif char:GetAttribute("Knocked") then
-                color = Color3.fromRGB(255, 150, 0)
-            end
+            mainColor = Color3.fromRGB(0, 255, 0) -- HIJAU TERANG (PURE LIME)
         end
-
-        -- APPLY
-        local hl = highlights[plr]
-        hl.Adornee = char
-        hl.FillColor = color
-
-        local txt = labels[plr]
-        txt.Parent.Adornee = head
-
-        local info = {}
-
-        if State.ESP.Names then
-            table.insert(info, plr.Name)
-        end
-
-        if State.ESP.Distance then
-            local dist = math.floor((head.Position - Camera.CFrame.Position).Magnitude)
-            table.insert(info, dist .. "m")
-        end
-
-        txt.Text = table.concat(info, "\n")
-        txt.TextColor3 = color
     end
 
-    --=====================================================
-    -- LOOP (OPTIMIZED)
-    --=====================================================
-    local running = true
+    -----------------------------------------------------------
+    -- HIGHLIGHT (BODY GLOW)
+    -----------------------------------------------------------
+    if not highlights[plr] then
+        local hl = Instance.new("Highlight")
+        hl.Name = "ESP_Highlight"
+        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+        hl.FillTransparency = 0.4
+        hl.OutlineTransparency = 0 -- Outline Tebal
+        hl.OutlineColor = Color3.new(1, 1, 1)
+        hl.Parent = camera
+        highlights[plr] = hl
+    end
+    highlights[plr].Enabled = true
+    highlights[plr].Adornee = char
+    highlights[plr].FillColor = mainColor
 
-    task.spawn(function()
-        while running do
-            task.wait(0.1) -- 🔥 lebih ringan dari Heartbeat
-
-            if not Camera then
-                Camera = workspace.CurrentCamera
-            end
-
-            for _, plr in ipairs(Players:GetPlayers()) do
-                if plr ~= LocalPlayer then
-                    updatePlayer(plr)
-                end
-            end
+    -----------------------------------------------------------
+    -- BILLBOARD ATAS KEPALA (Nama & Distance)
+    -----------------------------------------------------------
+    if not billhead[plr] then
+        local b = Instance.new("BillboardGui")
+        b.Size = UDim2.new(0, 150, 0, 50)
+        b.StudsOffset = Vector3.new(0, 1.5, 0) -- Jarak Dekat di Atas Kepala
+        b.AlwaysOnTop = true
+        b.Parent = camera
+        
+        local t = Instance.new("TextLabel", b)
+        t.Size = UDim2.new(1, 0, 1, 0)
+        t.BackgroundTransparency = 1
+        t.Font = Enum.Font.RobotoMono -- Font lebih tegas
+        t.TextSize = 11 -- Text diperkecil sesuai request
+        t.TextStrokeTransparency = 0
+        t.TextStrokeColor3 = Color3.new(0, 0, 0)
+        billhead[plr] = b
+    end
+    
+    local nameLabel = billhead[plr].TextLabel
+    billhead[plr].Enabled = true
+    billhead[plr].Adornee = head
+    
+    local distText = ""
+    if State.ESP.Studs then
+        local lpChar = Players.LocalPlayer.Character
+        local lpRoot = lpChar and lpChar:FindFirstChild("HumanoidRootPart")
+        if lpRoot then
+            local d = math.floor((root.Position - lpRoot.Position).Magnitude)
+            distText = " [" .. d .. "m]"
         end
-    end)
+    end
+    nameLabel.Text = (State.ESP.Names and plr.Name or "") .. distText
+    nameLabel.TextColor3 = mainColor
 
-    --=====================================================
-    -- EVENTS
-    --=====================================================
-    Players.PlayerRemoving:Connect(clearESP)
+    -----------------------------------------------------------
+    -- BILLBOARD SAMPING (Killer Type / Weapon)
+    -----------------------------------------------------------
+    if not billside[plr] then
+        local b = Instance.new("BillboardGui")
+        b.Size = UDim2.new(0, 150, 0, 50)
+        b.StudsOffset = Vector3.new(2.5, 0, 0) -- Ditaruh di Samping Badan
+        b.AlwaysOnTop = true
+        b.Parent = camera
+        
+        local t = Instance.new("TextLabel", b)
+        t.Size = UDim2.new(1, 0, 1, 0)
+        t.BackgroundTransparency = 1
+        t.Font = Enum.Font.SourceSansBold
+        t.TextSize = 12
+        t.TextStrokeTransparency = 0
+        t.TextXAlignment = Enum.TextXAlignment.Left
+        billside[plr] = b
+    end
 
-    Players.PlayerAdded:Connect(function(plr)
-        plr.CharacterAdded:Connect(function()
-            clearESP(plr)
-        end)
-    end)
-
-    print("ESP Optimized Loaded ✅")
+    local sideLabel = billside[plr].TextLabel
+    billside[plr].Enabled = true
+    billside[plr].Adornee = root
+    
+    local infoText = ""
+    if isKiller then
+        local kType = plr:GetAttribute("SelectedKiller") or "Killer"
+        infoText = "TYPE: " .. kType
+    elseif isSurvivor then
+        local weapon = plr:GetAttribute("EquippedItem") or "None"
+        if weapon ~= "None" and weapon ~= "" then
+            infoText = "WEAPON: " .. weapon
+        end
+    end
+    sideLabel.Text = infoText
+    sideLabel.TextColor3 = Color3.new(1, 1, 1) -- Info samping warna putih agar jelas
 end
+
+----------------------------------------------------------------
+-- RUN LOOP
+----------------------------------------------------------------
+RunService.RenderStepped:Connect(function()
+    local cam = getCamera()
+    if not cam then return end
+
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= Players.LocalPlayer then
+            updatePlayer(plr, cam, _G.SharedState)
+        end
+    end
+end)
+
+-- Cleanup
+Players.PlayerRemoving:Connect(clearESP)
+
