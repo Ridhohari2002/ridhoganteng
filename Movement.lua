@@ -10,7 +10,7 @@ return function(Window, State, Players, RunService)
 
     MoveSection:Slider({
         Title = "WalkSpeed Boost",
-        Value = { Min = 1, Max = 5, Default = 1.03 },
+        Value = { Min = 1, Max = 5, Default = 1.03, Decimal = 2 },
         Callback = function(v) State.Movement.SpeedValue = v end
     })
 
@@ -29,7 +29,18 @@ return function(Window, State, Players, RunService)
     local CameraSection = MoveTab:Section({ Title = "Camera Settings", Opened = true })
     CameraSection:Slider({
         Title = "Max Zoom Distance",
-        Value = { Min = 100, Max = 1000, Default = 500 },
-        Callback = function(v) LocalPlayer.CameraMaxZoomDistance = v end
+        Value = { Min = 12, Max = 1000, Default = 500 },
+        Callback = function(v) LocalPlayer.CameraMaxZoomDistance = v 
+            LocalPlayer.CameraMinZoomDistance = 12
+        end
+    })
+
+    CameraSection:Button({
+        Title = "Unlock Camera Zoom (F9 Fix)",
+        Callback = function()
+            LocalPlayer.CameraMaxZoomDistance = 1000
+            workspace.CurrentCamera.FieldOfView = 90
+            WindUI:Notify({Title = "Camera", Content = "Zoom Unlocked!", Duration = 2})
+        end
     })
 end
