@@ -2,6 +2,16 @@ return function(Window, State, Players, RunService)
     print("Mencoba memuat Tab Misc...")
     local State = _G.SharedState
 
+    -- SAFETY GUARD: Pastikan sub-tabel Misc tersedia
+    State.Misc = State.Misc or {
+        AntiAFK = false,
+        AntiFling = false,
+        TouchFling = false,
+        AntiAdmin = false
+    }
+
+    local LocalPlayer = Players.LocalPlayer
+
 --=====================================================
 -- MISCELLANEOUS UI
 --=====================================================
@@ -62,4 +72,3 @@ MiscTabSection:Button({
     end
 })
 end
-
