@@ -54,49 +54,6 @@ MiscTabSection:Toggle({
         end
     end
 })
---// Fungsi ambil daftar pemain terbaru
-local function getPlayerList()
-    local tbl = {}
-    for _, p in pairs(Players:GetPlayers()) do
-        if p ~= LocalPlayer then table.insert(tbl, p.Name) end
-    end
-    return tbl
-end
-
---// Create Dropdown
-local PlayerDropdown = MiscTabSection:Dropdown({
-    Title = "Select Target",
-    Multi = false,
-    Values = getPlayerList(),
-    Callback = function(v) 
-        State.Misc.targetPlayer = v -- Simpan ke State global
-    end
-})
-
---// AUTO REFRESH LOGIC
--- Update list otomatis pas ada yang masuk/keluar server
-local function refresh()
-    PlayerDropdown:SetValues(getPlayerList())
-end
-
-Players.PlayerAdded:Connect(refresh)
-Players.PlayerRemoving:Connect(refresh)
-
---// Ghost Target Toggle
-MiscTabSection:Toggle({
-    Title = "Ghost Target Fling",
-    Value = State.Misc.TargetFling or false,
-    Callback = function(v) 
-        if v and not State.Misc.targetPlayer then 
-            WindUI:Notify({Title = "Error", Content = "Pilih target dulu bro!", Duration = 3})
-            return 
-        end
-        State.Misc.TargetFling = v 
-        if v then
-            WindUI:Notify({Title = "Ghost", Content = "Targeting: " .. tostring(State.Misc.targetPlayer), Duration = 3})
-        end
-    end
-})
 
 MiscTabSection:Toggle({
     Title = "Anti Admin (Auto Leave)",
