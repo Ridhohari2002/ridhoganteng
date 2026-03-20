@@ -11,7 +11,6 @@ return function(Window, State, Players, RunService)
     }
 
     local LocalPlayer = Players.LocalPlayer
-    local targetPlayer = nil
 
 --=====================================================
 -- MISCELLANEOUS UI
