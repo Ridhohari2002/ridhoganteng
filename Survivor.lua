@@ -164,6 +164,21 @@ SvvAutoSkillSection:Toggle({
     end
 })
 
+-- Tambahkan di Survivor.lua
+SvvAutoSkillSection:Toggle({
+    Title = "Auto Dodge Abysswalker",
+    Value = State.AutoDodge or false,
+    Callback = function(v)
+        State.AutoDodge = v
+        if v then
+            WindUI:Notify({
+                Title = "Dodge System",
+                Content = "Auto Crouch for Abysswalker Active!",
+                Duration = 3
+            })
+        end
+    end
+})
 -- Dagger Section (Survivor.lua)
 local DaggerSection = SurvivorTab:Section ({
     Title = "Dagger [🔪]",
