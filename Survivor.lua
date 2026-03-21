@@ -155,45 +155,19 @@ SvvAutoSkillSection:Toggle({
     Value = false,
     Callback = function(v) State.AutoCrouch = v end
 })
---// LOGIC: FAST VAULT - PLAYER OBJECT
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-
-local function GetMyPlayerObject()
-    -- Langsung cari objek dengan nama persis LocalPlayer
-    return workspace:FindFirstChild(LocalPlayer.Name)
-end
 
 SvvAutoSkillSection:Toggle({
-    Title = "Fast Vault (3x Speed)",
-    Value = false,
+    Title = "Fast Vault",
+    Value = State.FastVault or false,
     Callback = function(v)
         State.FastVault = v
-        local myObj = GetMyPlayerObject()
-        
-        if myObj then
-            if v then
-                myObj:SetAttribute("vaultspeed", 1.2)
-                print("🚀 Vault Speed 3x activated for:", LocalPlayer.Name)
-            else
-                myObj:SetAttribute("vaultspeed", 1)
-                print("🔁 Vault Speed normal for:", LocalPlayer.Name)
-            end
-        else
-            warn("Objek player tidak ditemukan di workspace:", LocalPlayer.Name)
-        end
+        WindUI:Notify({
+            Title = "Survivor",
+            Content = v and "Fast Vault Enabled!" or "Fast Vault Disabled!",
+            Duration = 2
+        })
     end
 })
-
--- Loop maintain
-RunService.Heartbeat:Connect(function()
-    if State.FastVault then
-        local myObj = GetMyPlayerObject()
-        if myObj and myObj:GetAttribute("vaultspeed") ~= 1.2 then
-            myObj:SetAttribute("vaultspeed", 1.2)
-        end
-    end
-end)
 
 SvvAutoSkillSection:Toggle({
     Title ="No Slowdown",
