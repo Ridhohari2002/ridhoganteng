@@ -50,8 +50,19 @@ MiscTabSection:Toggle({
     Value = State.Misc.InvisFling or false,
     Callback = function(v) 
         State.Misc.InvisFling = v 
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            -- Bikin badan transparan/muncul lagi
+            for _, part in pairs(char:GetDescendants()) do
+                if part:IsA("BasePart") or part:IsA("Decal") then
+                    part.Transparency = v and 1 or 0
+                    if part.Name == "HumanoidRootPart" then part.Transparency = 1 end
+                end
+            end
+        end
+        
         if v then
-            WindUI:Notify({Title = "Shield", Content = "Invisible Fling Active! Approach them.", Duration = 3})
+            WindUI:Notify({Title = "Shield", Content = "You are now Ghost! Touch players to fling.", Duration = 3})
         end
     end
 })
