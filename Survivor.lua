@@ -188,7 +188,7 @@ DaggerSection:Slider({
         if visualFolder then
             visualFolder:Destroy()
             visualFolder = nil
-    end
+    end -- <--- DI SINI MASALAHNYA (Kurang satu 'end' dan ')')
 })
 DaggerSection:Toggle({
     Title = "Auto Parry", -- untuk menghidupkan atau matikan auto parry
