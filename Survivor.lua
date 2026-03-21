@@ -165,7 +165,7 @@ local function GetMyPlayerObject()
 end
 
 SvvAutoSkillSection:Toggle({
-    Title = "Fast Vault (3x Speed)",
+    Title = "Fast Vault",
     Value = false,
     Callback = function(v)
         State.FastVault = v
