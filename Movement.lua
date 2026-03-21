@@ -10,7 +10,8 @@ return function(Window, State, Players, RunService)
 
     MoveSection:Slider({
         Title = "Speed Multiplier",
-        Value = { Min = 1, Max = 5, Default = 1.03, Decimal = 2 },
+        Step = 0.01,
+        Value = { Min = 1, Max = 5, Default = 1.03},
         Callback = function(v) State.Movement.SpeedValue = v end
     })
 
