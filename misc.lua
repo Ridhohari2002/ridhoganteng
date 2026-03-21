@@ -54,7 +54,7 @@ MiscTabSection:Toggle({
     end
 })
 
-MiscSection:Toggle({
+MiscTabSection:Toggle({
     Title = "AOE Fling",
     Value = false,
     Callback = function(v)
@@ -62,7 +62,7 @@ MiscSection:Toggle({
     end
 })
 
-MiscSection:Slider({
+MiscTabSection:Slider({
     Title = "Fling Radius",
     Value = {Min = 5, Max = 30, Default = 15},
     Callback = function(v)
