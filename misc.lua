@@ -7,7 +7,9 @@ return function(Window, State, Players, RunService)
         AntiAFK = false,
         AntiFling = false,
         TouchFling = false,
-        AntiAdmin = false
+        AntiAdmin = false,
+        AOEFling = false,
+        FlingRadius = 15
     }
 
     local LocalPlayer = Players.LocalPlayer
