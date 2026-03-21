@@ -54,6 +54,22 @@ MiscTabSection:Toggle({
     end
 })
 
+MiscSection:Toggle({
+    Title = "AOE Fling",
+    Value = false,
+    Callback = function(v)
+        State.Misc.AOEFling = v
+    end
+})
+
+MiscSection:Slider({
+    Title = "Fling Radius",
+    Value = {Min = 5, Max = 30, Default = 15},
+    Callback = function(v)
+        State.Misc.FlingRadius = v
+    end
+})
+
 MiscTabSection:Toggle({
     Title = "Anti Admin (Auto Leave)",
     Value = State.Misc.AntiAdmin or false,
