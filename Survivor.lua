@@ -173,8 +173,8 @@ SvvAutoSkillSection:Toggle({
         
         if myObj then
             if v then
-                myObj:SetAttribute("vaultspeed", 1.5)
-                print("🚀 Vault Speed 3x activated for:", LocalPlayer.Name)
+                myObj:SetAttribute("vaultspeed", 1.3)
+                print("🚀 Vault Speed activated for:", LocalPlayer.Name)
             else
                 myObj:SetAttribute("vaultspeed", 1)
                 print("🔁 Vault Speed normal for:", LocalPlayer.Name)
