@@ -1,99 +1,64 @@
 return function(Window, State, Players, RunService)
     print("Mencoba memuat Tab Survivor...")
 
-    local LocalPlayer = Players.LocalPlayer
     local State = _G.SharedState
+    local LocalPlayer = Players.LocalPlayer
+    
 --=====================================================
--- SURVIVOR
+-- SURVIVOR UI: GENERATOR STATUS
 --=====================================================
-local SurvivorTab = Window:Tab({ 
-    Title = "Survivor", 
-    Icon = "lucide:heart" 
+local SurvivorTab = Window:Tab({ Title = "Survivor", Icon = "lucide:heart" })
+local SurvivorSection = SurvivorTab:Section({ Title = "Generator Status", Opened = true })
+
+local GenStatusLabel = SurvivorSection:Paragraph({
+    Title = "Generator Progress",
+    Content = "Scanning..."
 })
 
-local SurvivorSection = SurvivorTab:Section({
-    Title = "Generator Status",
-    Opened = true
-})
---- Scanning generators yang nantinya auto update dan menampilkan (generator 1, generator 2, generator 3 sampai generator 7)
-local GenStatusLabel = SurvivorSection:Paragraph({
-    Title = "Generator Progress..,",
-    Content = "Initializing scanner..."
-})
--------------------------------------------------------
--- FUNCTION: GET ALL GENERATORS
--------------------------------------------------------
-local function GetGenerators()
-    local gens = {}
-    local genFolder = workspace:FindFirstChild("Map") and workspace.Map:FindFirstChild("Generator")
-    
-    if genFolder then
-        -- Loop pertama: Masuk ke folder mesin (contoh: [436])
-        for _, mesin in ipairs(genFolder:GetChildren()) do
-            -- Loop kedua: Cari GeneratorPoint1-4 di dalam mesin tersebut
-            for _, point in ipairs(mesin:GetChildren()) do
-                if point.Name:find("GeneratorPoint") then
-                    table.insert(gens, point)
-                end
+-- Auto-Update Label UI
+task.spawn(function()
+    while task.wait(1) do -- Update UI setiap 1 detik agar tidak lag
+        local content = ""
+        local data = State.GeneratorData or {}
+
+        if #data == 0 then
+            GenStatusLabel:SetContent("Waiting for map to load...")
+        else
+            for _, info in ipairs(data) do
+                content ..= string.format("📍 %s: %d%% [%s]\n", info.Name, info.Progress, info.Status)
             end
+            GenStatusLabel:SetTitle("Total Generators: " .. #data)
+            GenStatusLabel:SetContent(content)
         end
     end
-    return gens
-end
-
-local function UpdateGeneratorStatus()
-    local generators = GetGenerators()
-
-    if #generators == 0 then
-        GenStatusLabel:SetTitle("No Generators Found")
-        GenStatusLabel:SetContent("Map belum load atau nama berbeda.") -- FIXED
-        return
-    end
-
-    local content = ""
-    for i, gen in ipairs(generators) do
-        -- Kita tampilkan nama aslinya (GeneratorPoint1, dll) agar jelas mana yang ketemu
-        content ..= "📍 " .. gen.Name .. " : FOUND\n"
-    end
-
-    GenStatusLabel:SetTitle("Total Generators: " .. #generators)
-    GenStatusLabel:SetContent(content) -- FIXED
-end
+end)
 
 SurvivorSection:Button({
-    Title = "Find Nearest Generator",
+    Title = "Highlight Nearest Generator",
     Callback = function()
-        local character = LocalPlayer.Character
-        local hrp = character and character:FindFirstChild("HumanoidRootPart")
+        local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
 
-        local generators = GetGenerators()
         local nearest = nil
         local shortestDistance = math.huge
 
-        for _, point in ipairs(generators) do
-            if point:IsA("BasePart") then
-                local dist = (point.Position - hrp.Position).Magnitude
+        for _, info in ipairs(State.GeneratorData) do
+            local genPart = info.Instance.PrimaryPart or info.Instance:FindFirstChildWhichIsA("BasePart")
+            if genPart then
+                local dist = (genPart.Position - hrp.Position).Magnitude
                 if dist < shortestDistance then
                     shortestDistance = dist
-                    nearest = point
+                    nearest = genPart
                 end
             end
         end
 
         if nearest then
-            -- Highlight effect agar tembus tembok
-            local highlight = Instance.new("Highlight")
-            highlight.FillColor = Color3.fromRGB(0, 255, 0)
-            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-            highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- FIXED
-            highlight.Parent = nearest
-
-            task.delay(5, function()
-                if highlight then highlight:Destroy() end
-            end)
-        else
-            print("Tidak ditemukan generator valid.")
+            local hl = Instance.new("Highlight", nearest)
+            hl.FillColor = Color3.fromRGB(0, 255, 0)
+            hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            task.delay(5, function() hl:Destroy() end)
+            WindUI:Notify({Title = "Survivor", Content = "Nearest Generator Highlighted!", Duration = 2})
         end
     end
 })
@@ -150,6 +115,23 @@ local SvvAutoSkillSection = SurvivorTab:Section({
     Title = "Survivor Auto Skill",
     Opened = true
 })
+
+SvvAutoSkillSection:Toggle({
+    Title = "Instant Heal (1-Click)",
+    Value = State.InstantHeal or false,
+    Callback = function(v)
+        State.InstantHeal = v
+    end
+})
+-- Toggle Silent Heal
+SvvAutoSkillSection:Toggle({
+    Title = "Silent Heal (No Sound)",
+    Value = State.SilentHeal or false,
+    Callback = function(v)
+        State.SilentHeal = v
+    end
+})
+
 SvvAutoSkillSection:Toggle({
     Title ="Auto Crouch", -- game:GetService("ReplicatedStorage").Remotes.Mechanics.Crouch
     Value = false,
@@ -175,9 +157,11 @@ SvvAutoSkillSection:Toggle({
     Callback = function(v) State.NoSlowSurv = v end
 })
 SvvAutoSkillSection:Toggle({
-    Title ="Auto Drop Pallete", --game:GetService("ReplicatedStorage").Remotes.Pallet.PalletDropEvent
-    Value = false,
-    Callback = function(v) State.AutoPallet = v end
+    Title = "Auto Pallet (Auto Space)",
+    Value = State.AutoPallet or false,
+    Callback = function(v)
+        State.AutoPallet = v
+    end
 })
 
 -- Dagger 
@@ -252,39 +236,33 @@ MiscSurvivorSection:Button({
     end
 })
 
---// Masukkan ke dalam tabel State
-State.GodMode = false
-
---// UI Section di WindUI
 local GodSection = SurvivorTab:Section({
     Title = "Survival [🛡️]",
-    Opened = false
+    Opened = true
 })
 
 GodSection:Toggle({
-    Title = "God Mode (Anti-Death)",
-    Value = State.GodMode,
+    Title = "Bypass Anti-Camp (Eksperimental)",
+    Value = State.BypassAntiCamp or false,
     Callback = function(v)
-        State.GodMode = v
-    end
-})
-
---// LOGIC GOD MODE
-RunService.Stepped:Connect(function()
-    if not State.GodMode then return end
-    
-    local char = LocalPlayer.Character
-    local hum = char and char:FindFirstChildOfClass("Humanoid")
-    
-    if hum then
-        -- 1. Mencegah kematian standar
-        hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
-        
-        -- 2. Jika Health terlalu rendah, paksa naik sedikit agar tidak pingsan
-        -- (Tetap di bawah 100 agar tidak mencolok, tapi cukup untuk pakai dagger)
-        if hum.Health <= 1 then
-            hum.Health = 5 -- Menjaga tetap hidup di mata server
+        State.BypassAntiCamp = v
+        if v then
+            WindUI:Notify({
+                Title = "Bypass Active",
+                Content = "Progress will run even if Killer is far!",
+                Duration = 3
+            })
         end
     end
-end)
+})
+GodSection:Toggle({
+    Title = "God Mode (Eksperimental)",
+    Value = State.GodMode or false,
+    Callback = function(v)
+        State.GodMode = v
+        if v then
+            WindUI:Notify({Title = "Survival", Content = "God Mode Active! Be careful of Void.", Duration = 3})
+        end
+    end
+})
 end
