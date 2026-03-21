@@ -164,11 +164,12 @@ SvvAutoSkillSection:Toggle({
     end
 })
 
--- Dagger 
+-- Dagger Section (Survivor.lua)
 local DaggerSection = SurvivorTab:Section ({
     Title = "Dagger [🔪]",
     Opened = true
 })
+
 DaggerSection:Dropdown({
     Title = "Parry Mode",
     Values = {"Animation", "No Animation"},
@@ -176,6 +177,7 @@ DaggerSection:Dropdown({
         State.ParryMode = v
     end
 })
+
 DaggerSection:Slider({
     Title = "Parry Radius",
     Value = {
@@ -185,19 +187,22 @@ DaggerSection:Slider({
     },
     Callback = function(v)
         State.ParryRadius = v
-        if visualFolder then
-            visualFolder:Destroy()
-            visualFolder = nil
-    end -- <--- DI SINI MASALAHNYA (Kurang satu 'end' dan ')')
-})
+        -- Reset visual agar radius lingkaran terupdate otomatis saat slider digeser
+        if _G.visualFolder then
+            _G.visualFolder:Destroy()
+            _G.visualFolder = nil
+        end
+    end
+}) -- SEKARANG SUDAH DITUTUP DENGAN BENAR
+
 DaggerSection:Toggle({
-    Title = "Auto Parry", -- untuk menghidupkan atau matikan auto parry
-    Value = false,
+    Title = "Auto Parry",
+    Value = State.AutoParry or false,
     Callback = function(v)
         State.AutoParry = v
-        if not v and visualFolder then
-            visualFolder:Destroy()
-            visualFolder = nil
+        if not v and _G.visualFolder then
+            _G.visualFolder:Destroy()
+            _G.visualFolder = nil
         end
     end
 })
