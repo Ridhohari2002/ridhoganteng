@@ -165,7 +165,7 @@ local function GetMyPlayerObject()
 end
 
 SvvAutoSkillSection:Toggle({
-    Title = "Fast Vault",
+    Title = "Fast Vault (3x Speed)",
     Value = false,
     Callback = function(v)
         State.FastVault = v
@@ -174,7 +174,7 @@ SvvAutoSkillSection:Toggle({
         if myObj then
             if v then
                 myObj:SetAttribute("vaultspeed", 1.2)
-                print("🚀 Vault Speed activated for:", LocalPlayer.Name)
+                print("🚀 Vault Speed 3x activated for:", LocalPlayer.Name)
             else
                 myObj:SetAttribute("vaultspeed", 1)
                 print("🔁 Vault Speed normal for:", LocalPlayer.Name)
@@ -222,11 +222,14 @@ DaggerSection:Slider({
     Title = "Parry Radius",
     Value = {
         Min = 1,
-        Max = 100,
-        Default = 10,
+        Max = 50,
+        Default = 15,
     },
     Callback = function(v)
         State.ParryRadius = v
+        if visualFolder then
+            visualFolder:Destroy()
+            visualFolder = nil
     end
 })
 DaggerSection:Toggle({
@@ -234,6 +237,10 @@ DaggerSection:Toggle({
     Value = false,
     Callback = function(v)
         State.AutoParry = v
+        if not v and visualFolder then
+            visualFolder:Destroy()
+            visualFolder = nil
+        end
     end
 })
 
