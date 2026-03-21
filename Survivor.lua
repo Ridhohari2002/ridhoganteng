@@ -187,22 +187,21 @@ DaggerSection:Slider({
     },
     Callback = function(v)
         State.ParryRadius = v
-        -- Reset visual agar radius lingkaran terupdate otomatis saat slider digeser
-        if _G.visualFolder then
-            _G.visualFolder:Destroy()
-            _G.visualFolder = nil
-        end
     end
 }) -- SEKARANG SUDAH DITUTUP DENGAN BENAR
 
 DaggerSection:Toggle({
     Title = "Auto Parry",
-    Value = State.AutoParry or false,
+    Value = false,
     Callback = function(v)
+        -- 🔥 Menyalakan atau mematikan fitur
         State.AutoParry = v
-        if not v and _G.visualFolder then
-            _G.visualFolder:Destroy()
-            _G.visualFolder = nil
+        
+        -- Jika dimatikan, visual akan otomatis dihapus oleh loop Heartbeat
+        if not v then
+            print("Auto Parry Disabled")
+        else
+            print("Auto Parry Enabled")
         end
     end
 })
