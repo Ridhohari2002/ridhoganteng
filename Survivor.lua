@@ -158,7 +158,7 @@ SvvAutoSkillSection:Toggle({
 })
 SvvAutoSkillSection:Toggle({
     Title = "Auto Pallet (Auto Space)",
-    Value = State.AutoPallet or false,
+    Value = false,
     Callback = function(v)
         State.AutoPallet = v
     end
