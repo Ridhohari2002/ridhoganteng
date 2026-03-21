@@ -9,7 +9,7 @@ return function(Window, State, Players, RunService)
     local MoveSection = MoveTab:Section({ Title = "Movement Character", Opened = true })
 
     MoveSection:Slider({
-        Title = "WalkSpeed Boost",
+        Title = "Speed Multiplier",
         Value = { Min = 1, Max = 5, Default = 1.03, Decimal = 2 },
         Callback = function(v) State.Movement.SpeedValue = v end
     })
