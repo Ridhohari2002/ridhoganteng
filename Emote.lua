@@ -1,5 +1,5 @@
 return function(Window, State, Players, RunService)
-    print("Mencoba memuat Tab Survivor...")
+    print("Mencoba memuat Tab Emote...")
 
     local State = _G.SharedState
 
