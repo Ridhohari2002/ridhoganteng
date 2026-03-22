@@ -22,3 +22,4 @@ EmoteSection:Paragraph({
     Title = "Instructions",
     Content = "1. Pilih emote di dropdown\n2. Tekan tombol 'V' untuk Play/Stop\n3. Goyang terus bro!"
 })
+end
