@@ -3,7 +3,6 @@ return function(Window, State, Players, RunService)
 
     local State = _G.SharedState
     -- Definisikan di sini agar tidak tergantung urutan file lain
-   return function(Window, State, Players, RunService)
     -- Simpan data di Global agar Logic bisa baca
     _G.EmoteData = {
         ["24 Hour Cinderella"] = {anim = "137195203725366", sound = "121099446613414"},
