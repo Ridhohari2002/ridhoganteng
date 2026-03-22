@@ -11,7 +11,7 @@ return function(Window, State, Players, RunService)
 EmoteSection:Dropdown({
     Title = "Select Emote",
     Multi = false,
-    Values = emoteNames,
+    Values = EmoteData,
     Callback = function(v)
         _G.SelectedEmoteName = v -- Simpan ke global agar bisa diakses logic keybind
         print("Selected:", v)
