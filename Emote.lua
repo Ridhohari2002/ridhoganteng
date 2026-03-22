@@ -10,6 +10,7 @@ local EmoteSection = EmoteTab:Section({ Title = "Emote Selection", Opened = true
     
 EmoteSection:Dropdown({
     Title = "Select Emote",
+    Multi = true,
     Values = emoteList,
     Callback = function(v)
         State.SelectedEmote = v
