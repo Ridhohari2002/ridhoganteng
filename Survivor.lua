@@ -121,6 +121,10 @@ SvvAutoSkillSection:Toggle({
     Value = State.InstantHeal or false,
     Callback = function(v)
         State.InstantHeal = v
+        if not v then
+            -- Memaksa server mereset status healing agar tidak bug animasi
+            pcall(ForceResetHeal)
+        end
     end
 })
 -- Toggle Silent Heal
