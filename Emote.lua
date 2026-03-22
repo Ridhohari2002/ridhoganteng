@@ -6,10 +6,6 @@ return function(Window, State, Players, RunService)
 local EmoteTab = Window:Tab({ Title = "Emotes", Icon = "lucide:music" })
 local EmoteSection = EmoteTab:Section({ Title = "Emote Selection", Opened = true })
 
-local emoteList = {}
-for name, _ in pairs(EmoteData) do table.insert(emoteList, name) end
-table.sort(emoteList)
-
 EmoteSection:Dropdown({
     Title = "Select Emote",
     Values = emoteList,
