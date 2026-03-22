@@ -3,7 +3,9 @@ return function(Window, State, Players, RunService)
 
     local State = _G.SharedState
     -- Definisikan di sini agar tidak tergantung urutan file lain
-    local localEmoteData = {
+   return function(Window, State, Players, RunService)
+    -- Simpan data di Global agar Logic bisa baca
+    _G.EmoteData = {
         ["24 Hour Cinderella"] = {anim = "137195203725366", sound = "121099446613414"},
         ["Applause"]           = {anim = "96328361165090",  sound = "115490787020749"},
         ["Arm Swing"]          = {anim = "80552139463944",  sound = "74216458932348"},
@@ -20,9 +22,7 @@ return function(Window, State, Players, RunService)
     }
 
     local emoteList = {}
-    for name, _ in pairs(localEmoteData) do
-        table.insert(emoteList, name)
-    end
+    for name, _ in pairs(_G.EmoteData) do table.insert(emoteList, name) end
     table.sort(emoteList)
 
     local EmoteTab = Window:Tab({ Title = "Emotes", Icon = "lucide:music" })
@@ -30,30 +30,19 @@ return function(Window, State, Players, RunService)
 
     EmoteSection:Dropdown({
         Title = "Select Emote",
-        Multi = false,
-        Values = emoteList, -- Menggunakan array string, bukan dictionary data
+        Values = emoteList,
         Callback = function(v)
-            _G.SelectedEmoteName = v -- Simpan ke global agar bisa diakses logic keybind
-            print("Selected Emote:", v)
+            _G.SelectedEmoteName = v
         end
     })
 
     EmoteSection:Button({
         Title = "Play Emote",
         Callback = function()
-            if _G.SelectedEmoteName then
-                -- Memanggil fungsi global yang sudah kita buat di versiGemini.lua
-                if _G.playCustomEmote then
-                    _G.playCustomEmote(_G.SelectedEmoteName)
-                else
-                    warn("Fungsi playCustomEmote belum dimuat!")
-                end
+            if _G.playCustomEmote and _G.SelectedEmoteName then
+                _G.playCustomEmote(_G.SelectedEmoteName)
             else
-                WindUI:Notify({
-                    Title = "Emote System",
-                    Content = "Pilih emote dulu dari dropdown!",
-                    Duration = 2
-                })
+                print("Fungsi play belum siap atau emote belum dipilih")
             end
         end
     })
@@ -61,12 +50,10 @@ return function(Window, State, Players, RunService)
     EmoteSection:Button({
         Title = "Stop Emote",
         Callback = function()
-            if _G.stopEmote then
-                _G.stopEmote()
-            end
+            if _G.stopEmote then _G.stopEmote() end
         end
     })
-
+    
     EmoteSection:Toggle({
         Title = "Use Key (V) to Play",
         Value = State.EmoteKeybind or false,
