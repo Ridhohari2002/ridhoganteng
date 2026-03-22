@@ -22,13 +22,13 @@ task.spawn(function()
         local data = State.GeneratorData or {}
 
         if #data == 0 then
-            GenStatusLabel:SetContent("Waiting for map to load...")
+            GenStatusLabel:SetDesc("Waiting for map to load...")
         else
             for _, info in ipairs(data) do
                 content ..= string.format("📍 %s: %d%% [%s]\n", info.Name, info.Progress, info.Status)
             end
             GenStatusLabel:SetTitle("Total Generators: " .. #data)
-            GenStatusLabel:SetContent(content)
+            GenStatusLabel:SetDesc(content)
         end
     end
 end)
