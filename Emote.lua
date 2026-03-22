@@ -2,24 +2,25 @@ return function(Window, State, Players, RunService)
     print("Mencoba memuat Tab Emote...")
 
     local State = _G.SharedState
-    State.EmoteKeybind = false
+    -- Ambil nama emote dari tabel global
+    local emoteList = {}
+    if _G.EmoteData then
+        for name, _ in pairs(_G.EmoteData) do
+            table.insert(emoteList, name)
+        end
+        table.sort(emoteList) -- Biar urut abjad
+    else
+        warn("EmoteData tidak ditemukan di _G!")
+        emoteList = {"Data Missing"}
+    end
 
     local EmoteTab = Window:Tab({ Title = "Emotes", Icon = "lucide:music" })
     local EmoteSection = EmoteTab:Section({ Title = "Emote Selection", Opened = true })
 
-    -- 1. Ambil Nama-Nama Emote dari Logic Utama
-    -- Kita asumsikan tabel EmoteData ada di versiGemini.lua (Logic)
-    -- Karena kita butuh list namanya saja untuk Dropdown:
-    local emoteNames = {
-        "24 Hour Cinderella", "Applause", "Arm Swing", "California Girls", 
-        "Ghoul", "Kyoufuu", "Mannrobics", "Quick Combo", 
-        "Schadenfreude", "Static", "Thriller", "Tor Monitor Ketua", "Wave"
-    }
-
     EmoteSection:Dropdown({
         Title = "Select Emote",
         Multi = false,
-        Values = emoteNames, -- Menggunakan array string, bukan dictionary data
+        Values = emoteList, -- Menggunakan array string, bukan dictionary data
         Callback = function(v)
             _G.SelectedEmoteName = v -- Simpan ke global agar bisa diakses logic keybind
             print("Selected Emote:", v)
