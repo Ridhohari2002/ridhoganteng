@@ -1,60 +1,44 @@
 return function(Window, State, Players, RunService)
-    print("Mencoba memuat Tab Emote...")
-
+    print("Mencoba memuat Tab Visual...")
     local State = _G.SharedState
+    --=====================================================
+    -- UI SETUP (Sesuai dengan UI kamu)
+    --=====================================================
+    local VisualTab = Window:Tab({ Title = "Visual", Icon = "lucide:eye" })
 
-    local EmoteTab = Window:Tab({ Title = "Emotes", Icon = "lucide:music" })
-    local EmoteSection = EmoteTab:Section({ Title = "Emote Selection", Opened = true })
-
-    EmoteSection:Dropdown({
-        Title = "Select Emote",
-        Values = emoteList,
-        Callback = function(v)
-            _G.SelectedEmoteName = v
-        end
+    local ScreenDisplaySection = VisualTab:Section ({ Title = "Screen Display", Opened = true })
+    
+    -- Fullbright Logic (Placeholder)
+    ScreenDisplaySection:Slider({
+        Title = "Full Bright",
+        Value = { Min = 0, Max = 100, Default = 5 },
+        Callback = function(v) State.FullBright = v end
     })
 
-    EmoteSection:Button({
-        Title = "Play Emote",
-        Callback = function()
-            if _G.playCustomEmote and _G.SelectedEmoteName then
-                _G.playCustomEmote(_G.SelectedEmoteName)
-            else
-                print("Fungsi play belum siap atau emote belum dipilih")
-            end
-        end
-    })
+    local ESPSection = VisualTab:Section ({ Title = "Seven Eye", Opened = true })
 
-    EmoteSection:Button({
-        Title = "Stop Emote",
-        Callback = function()
-            if _G.stopEmote then _G.stopEmote() end
-        end
+    ESPSection:Dropdown({
+        Title = "Selected Entities",
+        Multi = true,
+        Values = {"Killer", "Survivor", "Generators", "Gates", "Pallets", "Windows", "Hooks"},
+        Callback = function(v) State.ESP.Selected = v end
     })
     
-    EmoteSection:Toggle({
-        Title = "Use Key (V) to Play",
-        Value = State.EmoteKeybind or false,
-        Callback = function(v)
-            State.EmoteKeybind = v
-        end
-    })
-
-    EmoteSection:Toggle({
-        Title = "Rainbow Trail (Neon)",
-        Value = State.RainbowTrail or false,
-        Callback = function(v)
-            State.RainbowTrail = v
-            if v then
-                -- Pastikan WindUI terdefinisi atau gunakan pcall
-                local success, err = pcall(function()
-                    _G.WindUI:Notify({ -- Menggunakan _G jika WindUI dishare secara global
-                        Title = "Visual System",
-                        Content = "Rainbow Trail Enabled!",
-                        Duration = 2
-                    })
-                end)
+    ESPSection:Toggle({
+        Title = "Enable ESP",
+        Value = State.ESP.Enabled or false,
+        Callback = function(v) 
+            State.ESP.Enabled = v 
+            if not v then
+                for _, plr in ipairs(Players:GetPlayers()) do clearESP(plr) end
+                for obj, _ in pairs(trackedGens) do clearGenESP(obj) end
+                for obj, _ in pairs(trackedGates) do clearAllESP(obj) end
+                for obj, _ in pairs(trackedPallets) do clearAllESP(obj) end
             end
         end
     })
+
+    ESPSection:Toggle({ Title = "Show Names", Value = false, Callback = function(v) State.ESP.Names = v end })
+    ESPSection:Toggle({ Title = "Show Distance", Value = false, Callback = function(v) State.ESP.Studs = v end })
+
 end
