@@ -1,11 +1,13 @@
 return function(Window, State, Players, RunService)
-    print("Mencoba memuat Tab Emote...")
+    print("Mencoba memuat Tab Survivor...")
 
     local State = _G.SharedState
 
 local EmoteTab = Window:Tab({ Title = "Emotes", Icon = "lucide:music" })
 local EmoteSection = EmoteTab:Section({ Title = "Emote Selection", Opened = true })
 
+    local list = State.EmoteList or {"Wave"}
+    
 EmoteSection:Dropdown({
     Title = "Select Emote",
     Values = emoteList,
