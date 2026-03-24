@@ -117,7 +117,7 @@ local SvvAutoSkillSection = SurvivorTab:Section({
 })
 
 SvvAutoSkillSection:Toggle({
-    Title = "Instant Heal (1-Click)",
+    Title = "Instant Heal (Bug)",
     Value = State.InstantHeal or false,
     Callback = function(v)
         State.InstantHeal = v
