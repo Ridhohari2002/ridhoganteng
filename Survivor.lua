@@ -55,7 +55,7 @@ SurvivorSection:Button({
 
         if nearest then
             -- Teleport player ke atas generator (ditambah Y: 3 agar tidak nyangkut di dalam mesin)
-            hrp.CFrame = nearest.CFrame + Vector3.new(0, 3, 0)
+            hrp.CFrame = nearest.CFrame + Vector3.new(0, 10, 0)
             WindUI:Notify({Title = "Survivor", Content = "Teleported to Nearest Generator!", Duration = 2})
         end
     end
