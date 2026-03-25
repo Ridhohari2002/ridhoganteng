@@ -115,7 +115,7 @@ local SvvAutoSkillSection = SurvivorTab:Section({
 })
 
 SvvAutoSkillSection:Toggle({
-    Title = "Instant Heal (Bug)",
+    Title = "Instant Heal (1 click)",
     Value = State.InstantHeal or false,
     Callback = function(v)
         State.InstantHeal = v
@@ -263,7 +263,7 @@ local GodSection = SurvivorTab:Section({
 })
 
 GodSection:Toggle({
-    Title = "Bypass Anti-Camp (Eksperimental)",
+    Title = "Bypass Anti-Camp (not work)",
     Value = State.BypassAntiCamp or false,
     Callback = function(v)
         State.BypassAntiCamp = v
@@ -282,7 +282,7 @@ GodSection:Toggle({
     Callback = function(v)
         State.GodMode = v
         if v then
-            WindUI:Notify({Title = "Survival", Content = "God Mode Active! Be careful of Void.", Duration = 3})
+            WindUI:Notify({Title = "Survival", Content = "Be careful of Void.", Duration = 3})
         end
     end
 })
