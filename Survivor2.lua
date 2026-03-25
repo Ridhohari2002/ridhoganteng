@@ -223,6 +223,27 @@ DaggerSection:Toggle({
     end
 })
 
+local DashSection = SurvivorTab:Section({
+    Title = "Flash Step [⚡]",
+    Opened = true
+})
+
+DashSection:Toggle({
+    Title = "Instant Flash Escape",
+    Value = false,
+    Callback = function(v)
+        State.InstantDash = v
+    end
+})
+
+DashSection:Slider({
+    Title = "Instant Flash Distance",
+    Value = { Min = 5, Max = 50, Default = 20 },
+    Callback = function(v)
+        State.DashDistance = v
+    end
+})
+
 local MiscSurvivorSection = SurvivorTab:Section ({
     Title = "Misc",
     Opened = true
