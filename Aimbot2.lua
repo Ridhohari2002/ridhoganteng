@@ -15,10 +15,9 @@ local AimbotSettingSection = AimTab:Section({
     Opened = true
 })
 
--- Contoh kalau pakai Library Standar (sesuaikan dengan Library UI lu)
 AimbotSettingSection:Toggle({
     Title = "🔦 Flashlight Aimbot",
-    Value = State.FlashlightAimbot or false, -- Kasih nilai default false kalau nilainya kosong
+    Value = State.FlashlightAimbot or false, 
     Callback = function(Value)
         State.FlashlightAimbot = Value
         print("🔦 Flashlight Aimbot: ", Value)
