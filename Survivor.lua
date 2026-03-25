@@ -34,7 +34,7 @@ task.spawn(function()
 end)
 
 SurvivorSection:Button({
-    Title = "Highlight Nearest Generator",
+    Title = "Teleport Nearest Generator",
     Callback = function()
         local hrp = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
@@ -54,11 +54,9 @@ SurvivorSection:Button({
         end
 
         if nearest then
-            local hl = Instance.new("Highlight", nearest)
-            hl.FillColor = Color3.fromRGB(0, 255, 0)
-            hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-            task.delay(5, function() hl:Destroy() end)
-            WindUI:Notify({Title = "Survivor", Content = "Nearest Generator Highlighted!", Duration = 2})
+            -- Teleport player ke atas generator (ditambah Y: 3 agar tidak nyangkut di dalam mesin)
+            hrp.CFrame = nearest.CFrame + Vector3.new(0, 3, 0)
+            WindUI:Notify({Title = "Survivor", Content = "Teleported to Nearest Generator!", Duration = 2})
         end
     end
 })
