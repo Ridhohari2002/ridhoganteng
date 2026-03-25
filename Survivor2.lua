@@ -298,7 +298,7 @@ GodSection:Toggle({
     end
 })
 GodSection:Toggle({
-    Title = "God Mode (Eksperimental)",
+    Title = "God Mode",
     Value = State.GodMode or false,
     Callback = function(v)
         State.GodMode = v
