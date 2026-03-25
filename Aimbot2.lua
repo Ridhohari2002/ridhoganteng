@@ -16,12 +16,12 @@ local AimbotSettingSection = AimTab:Section({
 })
 
 -- Contoh kalau pakai Library Standar (sesuaikan dengan Library UI lu)
-AimbotSettingSection:CreateToggle({
+AimbotSettingSection:Toggle({
     Name = "🔦 Flashlight Aimbot",
-    CurrentValue = State.FlashlightAimbot, -- Pastikan State ini udah dibuat
-    Callback = function(Value)
-        State.FlashlightAimbot = Value
-        print("🔦 Flashlight Aimbot: ", Value)
+    Value = State.FlashlightAimbot, -- Pastikan State ini udah dibuat
+    Callback = function(v)
+        State.FlashlightAimbot = v
+        print("🔦 Flashlight Aimbot: ", v)
     end
 })
 
