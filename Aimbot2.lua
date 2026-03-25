@@ -23,6 +23,15 @@ AimbotSettingSection:Toggle({
         print("🔦 Flashlight Aimbot: ", Value)
     end
 })
+    
+AimbotSettingSection:Toggle({
+    Title = "🔋 Infinite Flashlight (No Cooldown)",
+    Value = State.InfiniteFlashlight or false,
+    Callback = function(Value)
+        State.InfiniteFlashlight = Value
+        print("🔋 Infinite Flashlight: ", Value)
+    end
+})
 
 AimbotSettingSection:Toggle({
     Title = "Enable Crosshair",
