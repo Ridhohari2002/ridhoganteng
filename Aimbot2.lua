@@ -25,7 +25,7 @@ AimbotSettingSection:Toggle({
 })
     
 AimbotSettingSection:Toggle({
-    Title = "🔋 Infinite Flashlight (No Cooldown)",
+    Title = "🔋 Infinite Flashlight (bug)",
     Value = State.InfiniteFlashlight or false,
     Callback = function(Value)
         State.InfiniteFlashlight = Value
