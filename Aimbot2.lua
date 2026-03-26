@@ -16,24 +16,6 @@ local AimbotSettingSection = AimTab:Section({
 })
 
 AimbotSettingSection:Toggle({
-    Title = "🔦 Flashlight Aimbot",
-    Value = State.FlashlightAimbot or false, 
-    Callback = function(Value)
-        State.FlashlightAimbot = Value
-        print("🔦 Flashlight Aimbot: ", Value)
-    end
-})
-    
-AimbotSettingSection:Toggle({
-    Title = "🔋 Infinite Flashlight (bug)",
-    Value = State.InfiniteFlashlight or false,
-    Callback = function(Value)
-        State.InfiniteFlashlight = Value
-        print("🔋 Infinite Flashlight: ", Value)
-    end
-})
-
-AimbotSettingSection:Toggle({
     Title = "Enable Crosshair",
     Value = false,
     Callback = function(v)
@@ -61,6 +43,29 @@ AimbotSettingSection:Keybind({
     Default = Enum.KeyCode.E,
     Callback = function(key)
         State.AimbotKeybind = key
+    end
+})
+
+local FlashlightSection = AimTab:Section({
+          Title = "Flashlight 🔦",
+          Openen = true
+})
+
+FlashlightSection:Toggle({
+    Title = "🔦 Flashlight Aimbot",
+    Value = State.FlashlightAimbot or false, 
+    Callback = function(Value)
+        State.FlashlightAimbot = Value
+        print("🔦 Flashlight Aimbot: ", Value)
+    end
+})
+    
+FlashlightSection:Toggle({
+    Title = "🔋 Infinite Flashlight (bug)",
+    Value = State.InfiniteFlashlight or false,
+    Callback = function(Value)
+        State.InfiniteFlashlight = Value
+        print("🔋 Infinite Flashlight: ", Value)
     end
 })
 end
