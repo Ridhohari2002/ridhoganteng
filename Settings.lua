@@ -17,18 +17,9 @@ local OptimizationSection = SettingTab:Section({
 
 OptimizationSection:Button({
     Title = "🚀 Activate Potato Mode (God-Tier FPS)",
-    Callback = function()
+    Callback = function(v)
         local State = _G.SharedState or getgenv().State
-        
-        -- Cek biar lu ga ga sengaja klik 2x dan bikin lag sesaat
-        if State.PotatoMode == "Done" then
-            WindUI:Notify({Title = "Optimization", Content = "FPS Boost sudah aktif bro!", Duration = 3})
-            return
-        end
-        
-        -- Kirim sinyal ke versiGemini2.lua buat mulai eksekusi
-        State.PotatoMode = true
-        WindUI:Notify({Title = "Optimization", Content = "FPS Boost, Active !", Duration = 3})
+        State.PotatoMode = v
     end
 })
 
