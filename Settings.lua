@@ -115,4 +115,3 @@ CreditSection:Button({
         }):Show()
     end
 })
-end
