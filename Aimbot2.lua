@@ -86,7 +86,7 @@ TOFSection:Toggle({
 TOFSection:Dropdown({
     Title = " Select Target Aimbot",
     Desc = "Choose who you want to shoot",
-    Values = { "Killer", "Survivor", "All" },
+    Values = { "Killer", "Survivor"},
     Value = "Killer", 
     Callback = function(option)
         local State = _G.SharedState or getgenv().State
