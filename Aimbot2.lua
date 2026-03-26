@@ -93,4 +93,17 @@ TOFSection:Dropdown({
         State.TargetTeam = option
     end
 })
+
+TOFSection:Slider({
+    Title = "Bullet Speed Prediction",
+    Desc = "The smaller the number, the further the aimbot shoots ahead of the enemy",
+    Step = 10,
+    Min = 50,
+    Max = 400,
+    Default = 150,
+    Callback = function(Value)
+        local State = _G.SharedState or getgenv().State
+        State.BulletSpeed = Value
+    end
+})
 end
