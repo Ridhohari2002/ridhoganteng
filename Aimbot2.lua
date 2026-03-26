@@ -48,7 +48,7 @@ AimbotSettingSection:Keybind({
 
 local FlashlightSection = AimTab:Section({
           Title = "Flashlight 🔦",
-          Openen = true
+          Opened = true
 })
 
 FlashlightSection:Toggle({
