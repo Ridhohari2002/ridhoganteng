@@ -80,7 +80,17 @@ TOFSection:Toggle({
     Callback = function(Value)
         local State = _G.SharedState or getgenv().State
         State.TwistOfFateAimbot = Value
-        print("🔫 Twist of Fate Silent Aim: ", Value)
+    end
+})
+
+TOFSection:Dropdown({
+    Title = " Select Target Aimbot",
+    Desc = "Choose who you want to shoot",
+    Values = { "Killer", "Survivor", "All" },
+    Value = "Killer", 
+    Callback = function(option)
+        local State = _G.SharedState or getgenv().State
+        State.TargetTeam = option
     end
 })
 end
