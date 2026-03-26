@@ -68,4 +68,19 @@ FlashlightSection:Toggle({
         print("🔋 Infinite Flashlight: ", Value)
     end
 })
+
+local TOFSection = AimTab:Section({
+          Title = "🔫 Twist of Fate",
+          Opened = true
+})
+
+TOFSection:Toggle({
+    Title = " Twist of Fate ",
+    Value = State.TwistOfFateAimbot or false,
+    Callback = function(Value)
+        local State = _G.SharedState or getgenv().State
+        State.TwistOfFateAimbot = Value
+        print("🔫 Twist of Fate Silent Aim: ", Value)
+    end
+})
 end
