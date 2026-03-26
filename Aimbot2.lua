@@ -96,14 +96,12 @@ TOFSection:Dropdown({
 
 TOFSection:Slider({
     Title = "Bullet Speed Prediction",
+    Value = { Min = 50, Max = 500, Default = 150 },
     Desc = "The smaller the number, the further the aimbot shoots ahead of the enemy",
-    Step = 10,
-    Min = 50,
-    Max = 400,
-    Default = 150,
-    Callback = function(Value)
+    Callback = function(v)
         local State = _G.SharedState or getgenv().State
-        State.BulletSpeed = Value
+        State.BulletSpeed = v
+        print("🚀 Prediksi Kecepatan Peluru diset ke:", v)
     end
 })
 end
