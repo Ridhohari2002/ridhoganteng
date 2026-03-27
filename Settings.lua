@@ -16,7 +16,7 @@ local OptimizationSection = SettingTab:Section({
 })
 
 OptimizationSection:Button({
-    Title = "🚀 Activate Potato Mode (God-Tier FPS)",
+    Title = "FPS Boost",
     Callback = function(v)
         local State = _G.SharedState or getgenv().State
         State.PotatoMode = v
@@ -86,23 +86,11 @@ CreditSection:Button({
 CreditSection:Button({
     Title = "Unload Script",
     Callback = function()
-        Window:Dialog({
-            Title = "Unload",
-            Content = "Are you sure you want to unload the script? All features will stop working.",
-            Icon = "lucide:log-out",
-            Buttons = {
-                { 
-                    Title = "Yes", 
-                    Callback = function() 
-                        -- Tambahkan logic pembersihan di sini (hapus ESP, stop loop, dll)
-                        _G.SharedState.ESP.Enabled = false
-                        _G.SharedState.Movement.NoClip = false
-                        task.wait(0.1)
-                        Window:Destroy() 
-                    end 
-                },
-                { Title = "Cancel", Callback = function() end }
-            }
-        }):Show()
+        -- Logic pembersihan di sini (hapus ESP, stop loop, dll)
+        _G.SharedState.ESP.Enabled = false
+        _G.SharedState.Movement.NoClip = false
+        task.wait(0.1)
+        Window:Destroy()
     end
 })
+end
