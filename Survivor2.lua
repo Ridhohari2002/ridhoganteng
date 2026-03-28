@@ -183,8 +183,57 @@ SvvAutoSkillSection:Toggle({
 })
 -- Dagger Section (Survivor.lua)
 local DaggerSection = SurvivorTab:Section ({
-    Title = "Dagger [🔪]",
+    Title = "Dagger (Advanced Parry) [八]",
     Opened = true
+})
+
+DaggerSection:Keybind({
+    Title = "Auto Parry Toggle Key",
+    Description = "Tekan tombol ini untuk On/Off Auto Parry",
+    Key = "C", -- Default Key
+    Callback = function(key)
+        State.AutoParry = not State.AutoParry
+        WindUI:Notify({
+            Title = "Dagger [八]",
+            Content = State.AutoParry and "Auto Parry: ON" or "Auto Parry: OFF",
+            Duration = 2
+        })
+    end
+})
+
+DaggerSection:Toggle({
+    Title = "Auto Parry",
+    Value = State.AutoParry or false,
+    Callback = function(v)
+        State.AutoParry = v
+    end
+})
+
+DaggerSection:Toggle({
+    Title = "Aim Prediction",
+    Description = "Mendeteksi ayunan bahkan saat Killer nge-dash/flick dengan membaca velocity-nya.",
+    Value = State.AimPrediction or false,
+    Callback = function(v)
+        State.AimPrediction = v
+    end
+})
+
+DaggerSection:Slider({
+    Title = "Face Killer Sensitivity",
+    Description = "Seberapa lurus Killer harus menghadap ke lu?\n100 = Harus pas depan muka\n0 = Bisa parry serangan dari samping",
+    Value = { Min = 0, Max = 100, Default = 70 },
+    Callback = function(v)
+        State.KillerAimSensitivity = v
+    end
+})
+
+DaggerSection:Slider({
+    Title = "Player Aim Strictness",
+    Description = "Seberapa lurus LU harus menghadap ke Killer?\n100 = Lu harus aim ke killer\n0 = Bisa parry walau lu ngebelakangin killer (OP)",
+    Value = { Min = 0, Max = 100, Default = 0 },
+    Callback = function(v)
+        State.PlayerAimStrictness = v
+    end
 })
 
 DaggerSection:Dropdown({
@@ -197,43 +246,18 @@ DaggerSection:Dropdown({
 
 DaggerSection:Slider({
     Title = "Parry Radius",
-    Value = {
-        Min = 1,
-        Max = 50,
-        Default = 15,
-    },
+    Value = { Min = 1, Max = 50, Default = 15 },
     Callback = function(v)
         State.ParryRadius = v
     end
-}) -- SEKARANG SUDAH DITUTUP DENGAN BENAR
-
-DaggerSection:Toggle({
-    Title = "Auto Parry",
-    Value = false,
-    Callback = function(v)
-        -- 🔥 Menyalakan atau mematikan fitur
-        State.AutoParry = v
-        
-        -- Jika dimatikan, visual akan otomatis dihapus oleh loop Heartbeat
-        if not v then
-            print("Auto Parry Disabled")
-        else
-            print("Auto Parry Enabled")
-        end
-    end
 })
 
--- Tambahkan ini di bawah Slider Parry Radius di Survivor2.lua
-DaggerSection:Slider({
-    Title = "Parry Precision (Aim Check)",
-    Description = "High (85-95): Only parries if Killer aims exactly at your body. Very safe, but may fail vs wide hitboxes.\nMedium (60-75): Recommended. Parries within Killer's view cone, even if slightly off-center.\nLow (0-40): Parries almost any nearby swing. Too suspicious.",
-    Value = {
-        Min = 0,
-        Max = 100,
-        Default = 70, -- 70-80 is the safest and most human-like
-    },
+DaggerSection:Toggle({
+    Title = "Show Killer Aim (Visualizer)",
+    Description = "Menampilkan garis laser merah dari Killer untuk melihat batas jangkauan Sensitivity.",
+    Value = State.ShowKillerAim or false,
     Callback = function(v)
-        State.ParryPrecision = v
+        State.ShowKillerAim = v
     end
 })
 
@@ -312,7 +336,7 @@ GodSection:Toggle({
     end
 })
 GodSection:Toggle({
-    Title = "God Mode",
+    Title = "God Mode (Eksperimental)",
     Value = State.GodMode or false,
     Callback = function(v)
         State.GodMode = v
