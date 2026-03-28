@@ -17,7 +17,8 @@ return function(Window, State, Players, RunService)
         ["Static"]             = {anim = "95096724457263",  sound = "70950516511572"},
         ["Thriller"]           = {anim = "99835792883875",  sound = "139985043810748"},
         ["Tor Monitor Ketua"]  = {anim = "81792358514569",  sound = "72665050838808"},
-        ["Wave"]               = {anim = "99670106766588",  sound = nil}
+        ["Wave"]               = {anim = "99670106766588",  sound = nil},
+        ["Backflip"]           = {anim = "74705617908505",  sound = nil}
     }
 
     local emoteList = {}
