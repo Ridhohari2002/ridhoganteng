@@ -223,6 +223,20 @@ DaggerSection:Toggle({
     end
 })
 
+-- Tambahkan ini di bawah Slider Parry Radius di Survivor2.lua
+DaggerSection:Slider({
+    Title = "Parry Precision (Aim Check)",
+    Description = "High (85-95): Only parries if Killer aims exactly at your body. Very safe, but may fail vs wide hitboxes.\nMedium (60-75): Recommended. Parries within Killer's view cone, even if slightly off-center.\nLow (0-40): Parries almost any nearby swing. Too suspicious.",
+    Value = {
+        Min = 0,
+        Max = 100,
+        Default = 70, -- 70-80 is the safest and most human-like
+    },
+    Callback = function(v)
+        State.ParryPrecision = v
+    end
+})
+
 local DashSection = SurvivorTab:Section({
     Title = "Flash Step [⚡]",
     Opened = true
