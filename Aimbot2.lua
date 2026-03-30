@@ -59,15 +59,6 @@ FlashlightSection:Toggle({
         print("🔦 Flashlight Aimbot: ", Value)
     end
 })
-    
-FlashlightSection:Toggle({
-    Title = "🔋 Infinite Flashlight (bug)",
-    Value = State.InfiniteFlashlight or false,
-    Callback = function(Value)
-        State.InfiniteFlashlight = Value
-        print("🔋 Infinite Flashlight: ", Value)
-    end
-})
 
 local TOFSection = AimTab:Section({
           Title = "🔫 Twist of Fate",
