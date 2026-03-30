@@ -76,7 +76,7 @@ TOFSection:Toggle({
 })
 
 TOFSection:Toggle({
-    Title = "👻 Enable Silent Aim (Magic Bullet)",
+    Title = "Enable Silent Aim",
     Desc = "Peluru otomatis belok ke target tanpa harus nge-lock kamera",
     Value = State.ToFSilentAim or false,
     Callback = function(Value)
@@ -86,7 +86,7 @@ TOFSection:Toggle({
 })
 
 TOFSection:Toggle({
-    Title = "⭕ Show Silent Aim FOV",
+    Title = "Silent Aim FOV",
     Value = State.ShowFOV or true,
     Callback = function(Value)
         local State = _G.SharedState or getgenv().State
@@ -105,7 +105,7 @@ TOFSection:Dropdown({
     end
 })
 TOFSection:Slider({
-    Title = "📏 Silent Aim FOV Radius",
+    Title = "Silent Aim FOV Radius",
     Value = { Min = 50, Max = 800, Default = 150 },
     Desc = "Jangkauan maksimal kursor mendeteksi musuh",
     Callback = function(v)
