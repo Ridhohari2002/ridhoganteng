@@ -9,7 +9,12 @@ return function(Window, State, Players, RunService)
         TouchFling = false,
         AntiAdmin = false,
         AOEFling = false,
-        FlingRadius = 15
+        FlingRadius = 15,
+
+        EnableDash = false,
+        DashKey = Enum.KeyCode.Q,
+        DashSpeed = 80
+
     }
 
     local LocalPlayer = Players.LocalPlayer
@@ -109,6 +114,36 @@ MiscTabSection:Button({
                 break
             end
         end
+    end
+})
+
+local DashSection = MiscTab:Section({
+    Title = "Custom Dash",
+    Opened = true
+})
+
+DashSection:Toggle({
+    Title = "Enable Custom Dash",
+    Desc = "Dash dengan animasi visual ke player lain",
+    Value = State.Misc.EnableDash,
+    Callback = function(v)
+        State.Misc.EnableDash = v
+    end
+})
+
+DashSection:Keybind({
+    Title = "Set Dash Key",
+    Default = State.Misc.DashKey,
+    Callback = function(key)
+        State.Misc.DashKey = key
+    end
+})
+
+DashSection:Slider({
+    Title = "Dash Speed (Power)",
+    Value = {Min = 30, Max = 150, Default = State.Misc.DashSpeed},
+    Callback = function(v)
+        State.Misc.DashSpeed = v
     end
 })
 end
