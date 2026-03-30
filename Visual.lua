@@ -11,7 +11,7 @@ return function(Window, State, Players, RunService)
     -- Fullbright Logic (Placeholder)
     ScreenDisplaySection:Slider({
         Title = "Full Bright",
-        Value = { Min = 0, Max = 100, Default = 5 },
+        Value = { Min = 0, Max = 100, Default = 0 },
         Callback = function(v) State.FullBright = v end
     })
 
