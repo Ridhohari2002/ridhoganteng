@@ -133,9 +133,19 @@ DashSection:Toggle({
 
 DashSection:Keybind({
     Title = "Set Dash Key",
-    Default = State.Misc.DashKey,
+    Default = Enum.KeyCode.Q,
     Callback = function(key)
-        State.Misc.DashKey = key
+        -- WindUI Keybind mengembalikan string nama key (e.g. "Q", "F")
+        -- Kita harus konversi ke Enum.KeyCode agar bisa dicocokkan dgn input.KeyCode
+        if type(key) == "string" then
+            local success, enumKey = pcall(function()
+                return Enum.KeyCode[key]
+            end)
+            State.Misc.DashKey = (success and enumKey) or Enum.KeyCode.Q
+        else
+            State.Misc.DashKey = key
+        end
+        print("[Dash] DashKey diset ke:", tostring(State.Misc.DashKey))
     end
 })
 
