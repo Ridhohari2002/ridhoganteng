@@ -59,6 +59,15 @@ FlashlightSection:Toggle({
         print("🔦 Flashlight Aimbot: ", Value)
     end
 })
+    
+FlashlightSection:Toggle({
+    Title = "🔋 Infinite Flashlight (bug)",
+    Value = State.InfiniteFlashlight or false,
+    Callback = function(Value)
+        State.InfiniteFlashlight = Value
+        print("🔋 Infinite Flashlight: ", Value)
+    end
+})
 
 local TOFSection = AimTab:Section({
           Title = "🔫 Twist of Fate",
@@ -74,14 +83,42 @@ TOFSection:Toggle({
     end
 })
 
+TOFSection:Toggle({
+    Title = "👻 Enable Silent Aim (Magic Bullet)",
+    Desc = "Peluru otomatis belok ke target tanpa harus nge-lock kamera",
+    Value = State.ToFSilentAim or false,
+    Callback = function(Value)
+        local State = _G.SharedState or getgenv().State
+        State.ToFSilentAim = Value
+    end
+})
+
+TOFSection:Toggle({
+    Title = "⭕ Show Silent Aim FOV",
+    Value = State.ShowFOV or true,
+    Callback = function(Value)
+        local State = _G.SharedState or getgenv().State
+        State.ShowFOV = Value
+    end
+})
+
 TOFSection:Dropdown({
-    Title = " Select Target Aimbot",
+    Title = " Select Target",
     Desc = "Choose who you want to shoot",
     Values = { "Killer", "Survivor"},
     Value = "Killer", 
     Callback = function(option)
         local State = _G.SharedState or getgenv().State
         State.TargetTeam = option
+    end
+})
+TOFSection:Slider({
+    Title = "📏 Silent Aim FOV Radius",
+    Value = { Min = 50, Max = 800, Default = 150 },
+    Desc = "Jangkauan maksimal kursor mendeteksi musuh",
+    Callback = function(v)
+        local State = _G.SharedState or getgenv().State
+        State.SilentAimFOV = v
     end
 })
 
@@ -95,4 +132,5 @@ TOFSection:Slider({
         print("🚀 Prediksi Kecepatan Peluru diset ke:", v)
     end
 })
+
 end
