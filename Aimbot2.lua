@@ -125,4 +125,19 @@ TOFSection:Slider({
     end
 })
 
+TOFSection:Toggle({
+    Title = "🔍 Debug Remote Logger",
+    Desc = "Aktifkan lalu tembak → lihat Output untuk nama Remote yang dipakai game",
+    Value = false,
+    Callback = function(Value)
+        local State = _G.SharedState or getgenv().State
+        State.DebugFireServer = Value
+        if Value then
+            print("[DEBUG] Remote Logger AKTIF! Tembak sekarang dan cek Output!")
+        else
+            print("[DEBUG] Remote Logger dimatikan.")
+        end
+    end
+})
+
 end
