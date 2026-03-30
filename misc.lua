@@ -3,19 +3,19 @@ return function(Window, State, Players, RunService)
     local State = _G.SharedState
 
     -- SAFETY GUARD: Pastikan sub-tabel Misc tersedia
-    State.Misc = State.Misc or {
-        AntiAFK = false,
-        AntiFling = false,
-        TouchFling = false,
-        AntiAdmin = false,
-        AOEFling = false,
-        FlingRadius = 15,
-
-        EnableDash = false,
-        DashKey = Enum.KeyCode.Q,
-        DashSpeed = 80
-
-    }
+    if not State.Misc then State.Misc = {} end
+    if State.Misc.AntiAFK == nil then State.Misc.AntiAFK = false end
+    if State.Misc.AntiFling == nil then State.Misc.AntiFling = false end
+    if State.Misc.TouchFling == nil then State.Misc.TouchFling = false end
+    if State.Misc.AntiAdmin == nil then State.Misc.AntiAdmin = false end
+    if State.Misc.AOEFling == nil then State.Misc.AOEFling = false end
+    if State.Misc.FlingRadius == nil then State.Misc.FlingRadius = 15 end
+    if State.Misc.InvisFling == nil then State.Misc.InvisFling = false end
+    
+    -- Memaksa variabel Dash terisi kalau belum ada
+    if State.Misc.EnableDash == nil then State.Misc.EnableDash = false end
+    if State.Misc.DashKey == nil then State.Misc.DashKey = Enum.KeyCode.Q end
+    if State.Misc.DashSpeed == nil then State.Misc.DashSpeed = 80 end
 
     local LocalPlayer = Players.LocalPlayer
 
