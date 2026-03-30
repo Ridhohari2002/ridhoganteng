@@ -17,9 +17,9 @@ local OptimizationSection = SettingTab:Section({
 
 OptimizationSection:Button({
     Title = "FPS Boost",
-    Callback = function(v)
+    Callback = function()
         local State = _G.SharedState or getgenv().State
-        State.PotatoMode = v
+        State.PotatoMode = true
     end
 })
 
