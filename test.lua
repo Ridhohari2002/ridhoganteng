@@ -26,3 +26,18 @@ HealSkillEvent.OnClientEvent:Connect(function(targetCharacter)
     pcall(function()
         HealResultEvent:FireServer(unpack(args))
     end)
+    
+    -- Hapus paksa UI jarum Skill Check dari layar lu (Headless/Clean visual)
+    pcall(function()
+        local PlayerGui = LocalPlayer:FindFirstChild("PlayerGui")
+        if PlayerGui then
+            local promptGui = PlayerGui:FindFirstChild("SkillCheckPromptGui")
+            if promptGui then
+                promptGui.Enabled = false
+                if promptGui:FindFirstChild("Check") then
+                    promptGui.Check.Visible = false
+                end
+            end
+        end
+    end)
+end)
