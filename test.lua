@@ -1,5 +1,5 @@
 -- ==========================================
--- 🌟 HEADLESS AUTO SKILL CHECK (HEALING ONLY) 🌟
+-- 🌟 HEADLESS AUTO SKILL CHECK (HEALING ONLY - FIX) 🌟
 -- ==========================================
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -11,45 +11,38 @@ local HealSkillEvent = remotes:WaitForChild("Healing"):WaitForChild("SkillCheckE
 local HealResultEvent = remotes:WaitForChild("Healing"):WaitForChild("SkillCheckResultEvent")
 local healRemote = remotes:WaitForChild("Healing"):WaitForChild("HealEvent")
 
-local currentHealTargetHRP = nil
+local currentHealCharacter = nil
 
 -- Aktif otomatis saat dieksekusi
 _G.HeadlessHealOnly = true
 print("🟢 Headless Auto Skillcheck HEALING AKTIF!")
 
-HealSkillEvent.OnClientEvent:Connect(function(incomingArg) 
-    if _G.HeadlessHealOnly then
-        local targetChar = nil
-        local targetHRP = nil
-        
-        -- Deteksi otomatis apakah server ngirim Model atau BasePart
-        if typeof(incomingArg) == "Instance" then
-            if incomingArg:IsA("Model") and incomingArg:FindFirstChild("Humanoid") then
-                targetChar = incomingArg
-                targetHRP = incomingArg:FindFirstChild("HumanoidRootPart")
-            elseif incomingArg:IsA("BasePart") and incomingArg.Parent:FindFirstChild("Humanoid") then
-                targetChar = incomingArg.Parent 
-                targetHRP = incomingArg
-            end
-        end
-        
-        -- Kalau target valid, eksekusi skillcheck
-        if targetChar and targetHRP then
-            currentHealTargetHRP = targetHRP
-            
-            -- [PENTING] DELAY DITAMBAH: 0.75 - 1.2 detik.
-            -- Biar server mengira jarum skillcheck sudah benar-benar masuk area hijau.
-            task.wait(math.random(75, 120) / 100)
-            
-            -- Kita kembalikan ke "success", 1 karena "neutral", 0 adalah fail/miss
-            pcall(function() 
-                HealResultEvent:FireServer("success", 1, targetChar) 
-                print("✅ [DEBUG] Auto Heal (Success) Ditembak ke: " .. targetChar.Name)
-            end)
-        else
-            warn("❌ [DEBUG] Auto Heal Gagal! Target tidak ditemukan.")
-        end
+-- ==========================================
+-- AUTO SUCCESS HEALING (ECHO TARGET)
+-- ==========================================
+HealSkillEvent.OnClientEvent:Connect(function(target)
+    if not _G.HeadlessHealOnly then
+        return
     end
+
+    if typeof(target) ~= "Instance" then
+        return
+    end
+
+    -- Simpan Character untuk fitur Anti-Nyangkut
+    currentHealCharacter = target
+
+    -- Delay natural agar tidak instan
+    task.wait(math.random(25, 45) / 100)
+
+    pcall(function()
+        HealResultEvent:FireServer(
+            "neutral",
+            0,
+            target
+        )
+        print("✅ [DEBUG] Heal Success ditembak ke:", target)
+    end)
 end)
 
 -- ==========================================
@@ -61,12 +54,14 @@ RunService.Heartbeat:Connect(function()
     local char = LocalPlayer.Character
     local hum = char and char:FindFirstChildOfClass("Humanoid")
     
-    -- Jika player bergerak (Input dari Joystick HP / WASD)
+    -- Jika player bergerak
     if hum and hum.MoveDirection.Magnitude > 0 then
-        -- Lepas interaksi Healing
-        if currentHealTargetHRP then
-            pcall(function() healRemote:FireServer(currentHealTargetHRP, false) end)
-            currentHealTargetHRP = nil
+        if currentHealCharacter then
+            pcall(function()
+                healRemote:FireServer(currentHealCharacter, false)
+                print("🛑 [DEBUG] Heal Dibatalkan karena gerak WASD")
+            end)
+            currentHealCharacter = nil
         end
     end
 end)
