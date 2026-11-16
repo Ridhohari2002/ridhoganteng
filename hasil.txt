@@ -1,0 +1,630 @@
+=== NETWORK ACCESS ===
+
+--- capture.mjs ---
+
+.agents\skills\hallmark\scripts\capture.mjs:60:  const app = await puppeteer.connect({ browserURL:
+`http://127.0.0.1:${port}`, defaultViewport: null }).catch((e) => { console.error(`no DevTools endpoint on port
+${port}: ${e.message}`); process.exit(1); });
+
+--- imagegen.mjs ---
+.agents\skills\hallmark\scripts\imagegen.mjs:6:const ENDPOINT = "https://api.together.xyz/v1/images/generations";
+.agents\skills\hallmark\scripts\imagegen.mjs:60:const key = process.env.TOGETHER_API_KEY;
+.agents\skills\hallmark\scripts\imagegen.mjs:65:      "TOGETHER_API_KEY not set. Image generation is opt-in; falling
+back to CSS-art / a labelled placeholder. " +
+.agents\skills\hallmark\scripts\imagegen.mjs:66:      "Set TOGETHER_API_KEY to generate real imagery, or keep the
+typography-only / placeholder path.",
+.agents\skills\hallmark\scripts\imagegen.mjs:71:  const res = await fetch(ENDPOINT, {
+.agents\skills\hallmark\scripts\imagegen.mjs:73:    headers: { "content-type": "application/json", authorization:
+`Bearer ${key}` },
+.agents\skills\hallmark\scripts\imagegen.mjs:79:    out({ error: `together ${res.status}`, message: `image API
+${res.status}: ${detail}` }, 1);
+.agents\skills\hallmark\scripts\imagegen.mjs:89:  const provenance = { model, prompt, size, steps, n, hash, files:
+paths.map((p) => basename(p)), generatedVia: "together", note: "generated asset; post-process before shipping; verify
+licensing", at: new Date().toISOString().slice(0, 10) };
+
+--- install.mjs ---
+
+--- install-hook.mjs ---
+
+--- lint-hook.mjs ---
+
+--- picture.mjs ---
+
+--- theme.mjs ---
+.agents\skills\hallmark\scripts\theme.mjs:413:        if (!url.startsWith('https://upload.wikimedia.org/')) throw new
+Error('not a Wikimedia Commons file');
+.agents\skills\hallmark\scripts\theme.mjs:415:        for (let t = 0; t < 4; t++) { res = await fetch(url, { headers:
+{ 'User-Agent': 'Hallmark/2.0 (https://github.com/Nutlope/hallmark; theme.mjs photos --save)' }, signal:
+AbortSignal.timeout(60000) }); if (res.status !== 429) break; await new Promise((ok) => setTimeout(ok, 10000 * (t +
+1))); }
+
+=== PROCESS EXECUTION ===
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:8:import { spawnSync } from 'node:child_process';
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:29:      const result =
+spawnSync(process.execPath, [script, ...args, ...extra], { cwd: dir, env, encoding: 'utf8' });
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:61:      const result =
+spawnSync(process.execPath, ['--import', pathToFileURL(preload).href, script, prompt, '--n', '2', '--force', '--out',
+join(dirname(metadata), 'chosen.png'), '--json'], {
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:77:    const result = spawnSync(process.execPath,
+['--import', pathToFileURL(preload).href, script, prompt, '--n', '2', '--force', '--out', join(dirname(metadata),
+'chosen.png'), '--json'], {
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:126:    const result =
+spawnSync(process.execPath, ['--max-old-space-size=32', script, prompt, '--n', '1000000000', '--json'], {
+.agents\skills\hallmark\scripts\capture.mjs:43:const globalRoot = async () => { try { const { execSync } = await
+import('node:child_process'); return dirname(execSync('npm root -g', { encoding: 'utf8', stdio: ['ignore', 'pipe',
+'ignore'] }).trim()); } catch { return null; } };
+.agents\skills\hallmark\scripts\capture.test.mjs:2:import { spawn } from 'node:child_process';
+.agents\skills\hallmark\scripts\capture.test.mjs:24:      const p = spawn(process.execPath, [script,
+`http://127.0.0.1:${server.address().port}`, '--routes', routes, '--sizes', 'desktop', '--wait', '0', '--scale', '1',
+'--out', out || dir], { cwd: dir, env: process.env });
+.agents\skills\hallmark\scripts\install.mjs:102:const { execFileSync } = await import("node:child_process");
+.agents\skills\hallmark\scripts\install.mjs:104:  if (!DRY) execFileSync(process.execPath, [path.join(HERE,
+"theme.mjs"), "index"], { stdio: "inherit" });
+.agents\skills\hallmark\scripts\install.mjs:109:  try { execFileSync(process.execPath, argv, { stdio: "pipe" });
+return true; }
+.agents\skills\hallmark\scripts\lint-hook.mjs:3:import { execFileSync } from "node:child_process";
+.agents\skills\hallmark\scripts\lint-hook.mjs:33:    out = execFileSync(process.execPath, [sloplint, ...args], {
+encoding: "utf8", timeout: 4000, stdio: ["ignore", "pipe", "ignore"] });
+.agents\skills\hallmark\scripts\picture.mjs:22:try { const { execSync } = await import('node:child_process');
+roots.push(dirname(execSync('npm root -g', { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim())); }
+catch {}
+.agents\skills\hallmark\scripts\picture.mjs:53:const shape = (/shape:\s*([^·*\n]+?)\s*[·*\n]/.exec(head) || [])[1];
+.agents\skills\hallmark\scripts\picture.mjs:54:const hero = (/hero:\s*([^·*\n]+?)\s*[·*\n]/.exec(head) || [])[1];
+.agents\skills\hallmark\scripts\picture.mjs:64:  const way = (new RegExp(`\\b${slug}:\\s*([a-z][a-z-]*)`).exec(head)
+|| [])[1];
+.agents\skills\hallmark\scripts\picture.mjs:65:  const fallback = (/`([a-z][a-z-]*)`\s*\(default\)/.exec(src) ||
+[])[1];
+.agents\skills\hallmark\scripts\picture.mjs:69:  try { const { execFileSync } = await import('node:child_process');
+execFileSync(process.execPath, [join(HERE, 'theme.mjs'), 'index'], { stdio: 'ignore' }); } catch {}
+.agents\skills\hallmark\scripts\refcheck.mjs:6:import { spawnSync } from 'node:child_process';
+.agents\skills\hallmark\scripts\refcheck.mjs:35:const VERSION = (/^version:\s*([\d.]+)/m.exec(read(SKILL)) || [])[1];
+.agents\skills\hallmark\scripts\refcheck.mjs:41:const retiredLine = (/Retired numbers stay retired:\*\*\s*([\d,
+and]+) are never reused/.exec(gatesSrc) || [])[1] || '';
+.agents\skills\hallmark\scripts\refcheck.mjs:133:    const num = /^(\d+)\b/.exec(rest);
+.agents\skills\hallmark\scripts\refcheck.mjs:154:  const m = new RegExp(`const ${block} =
+\`([\\s\\S]*?)\`;`).exec(theme);
+.agents\skills\hallmark\scripts\refcheck.mjs:196:const themeVersion = (/const VERSION = '([\d.]+)'/.exec(theme) ||
+[])[1];
+.agents\skills\hallmark\scripts\refcheck.mjs:213:      const ls = /letter-spacing:\s*(-?[\d.]+)em/.exec(body);
+.agents\skills\hallmark\scripts\refcheck.mjs:221:const tiersBlock = (/const TIERS = new
+Map\(Object\.entries\(\{([\s\S]*?)\}\)\)/.exec(sloplint) || [])[1] || '';
+.agents\skills\hallmark\scripts\refcheck.mjs:259:const front = /^---\n([\s\S]*?)\n---\n/.exec(readFileSync(SKILL,
+'utf8'));
+.agents\skills\hallmark\scripts\refcheck.mjs:260:const fm = front ? Object.fromEntries(front[1].split('\n').map((l)
+=> /^([a-z-]+):\s*(.*)$/.exec(l)).filter(Boolean).map((m) => [m[1], m[2]])) : {};
+.agents\skills\hallmark\scripts\refcheck.mjs:267:  const hint = /## Build
+hint[\s\S]*?```css\n([\s\S]*?)```/.exec(src);
+.agents\skills\hallmark\scripts\refcheck.mjs:279:  const run = spawnSync(process.execPath, [join(ROOT, 'scripts',
+'sloplint.mjs'), target, '--json'], { encoding: 'utf8' });
+.agents\skills\hallmark\scripts\refcheck.mjs:298:    const run = spawnSync(process.execPath, [join(ROOT, 'scripts',
+'sloplint.mjs'), project, '--scope', 'component', '--json'], { encoding: 'utf8', timeout: 5000 });
+.agents\skills\hallmark\scripts\refcheck.mjs:315:      const run = spawnSync(process.execPath, [join(ROOT, 'scripts',
+'sloplint.mjs'), ...paths, '--json'], { cwd: tmp, encoding: 'utf8', timeout: 5000 });
+.agents\skills\hallmark\scripts\refcheck.mjs:334:    const run = spawnSync(process.execPath, [join(ROOT, 'scripts',
+'sloplint.mjs'), theme, '--scope', 'component', '--json'], { encoding: 'utf8', timeout: 5000 });
+.agents\skills\hallmark\scripts\refcheck.mjs:340:const lintJson = (t) => { const r = spawnSync(process.execPath,
+[join(ROOT, 'scripts', 'sloplint.mjs'), t, '--json'], { encoding: 'utf8' }); try { return JSON.parse(r.stdout); }
+catch { return null; } };
+.agents\skills\hallmark\scripts\refcheck.mjs:361:    const run = (flag) => spawnSync(process.execPath, [join(ROOT,
+'scripts', 'sloplint.mjs'), 'index.html', flag, '--json'], { encoding: 'utf8', cwd: tmp });
+.agents\skills\hallmark\scripts\reroll-exhaustion.test.mjs:7:import { spawnSync } from 'node:child_process';
+.agents\skills\hallmark\scripts\reroll-exhaustion.test.mjs:13:    const run = (reroll, n = 3) =>
+spawnSync(process.execPath,
+.agents\skills\hallmark\scripts\sloplint-render.mjs:117:      const { execSync } = await import('node:child_process');
+.agents\skills\hallmark\scripts\sloplint-render.mjs:118:      const g = execSync('npm root -g', { encoding: 'utf8',
+stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+.agents\skills\hallmark\scripts\sloplint-render.mjs:160:          meta.postureByFile[file] =
+(/posture:\s*(restrained|committed|full-palette|drenched)/i.exec(stamp)?.[1] || 'restrained').toLowerCase();
+.agents\skills\hallmark\scripts\sloplint-render.mjs:161:          const field = (/hero:\s*([^·*\n]+)/i.exec(stamp) ||
+[])[1] || '';
+.agents\skills\hallmark\scripts\sloplint-render.mjs:163:          const own = new
+RegExp(`(settled|banner|poster|ledge|corridor|stage|counter|index)\\s*\\(${route.replace(/[.*+?^${}()|[\]\\]/g,
+'\\$&')}\\)`, 'i').exec(field);
+.agents\skills\hallmark\scripts\sloplint-render.mjs:165:          meta.jobByFile[file] = ((/\bjob:\s*([a-z][a-z
+/-]*)/i.exec(stamp) || [])[1] || '').trim().toLowerCase();
+.agents\skills\hallmark\scripts\sloplint-render.mjs:166:          meta.heroPostureByFile[file] =
+/theme:\s*custom\b/i.test(stamp) ? 'custom' : ((own ||
+/(settled|banner|poster|ledge|corridor|stage|counter|index)\b/i.exec(field) || [])[1] || '').toLowerCase();
+.agents\skills\hallmark\scripts\sloplint-render.mjs:545:      const m =
+/^rgba?\(([\d.]+),\s*([\d.]+),\s*([\d.]+)(?:,\s*([\d.]+))?\)$/.exec(s.trim());
+.agents\skills\hallmark\scripts\sloplint-render.mjs:547:      const alpha = /\/\s*([\d.]+%?)\s*\)$/.exec(s);
+.agents\skills\hallmark\scripts\sloplint-render.mjs:578:            const bh = /\s([\d.]+)px\s*$/.exec((sizes[li] ||
+sizes[0] || '').trim()); if (bh && parseFloat(bh[1]) <= 6) continue;
+.agents\skills\hallmark\scripts\sloplint.mjs:192:  while ((m = styleRe.exec(src))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:197:  while ((m = scriptRe.exec(src))) scripts += m[1] + '\n';
+.agents\skills\hallmark\scripts\sloplint.mjs:206:  while ((m = tagRe.exec(masked))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:254:    const fm = FRONTMATTER.exec(src);
+.agents\skills\hallmark\scripts\sloplint.mjs:526:    if (toks.length) out.push({ pos, name:
+/^[\w$]+/.exec(src.slice(pos))[0], toks });
+.agents\skills\hallmark\scripts\sloplint.mjs:534:  const fm = kind === 'astro' ? FRONTMATTER.exec(src) : null;
+.agents\skills\hallmark\scripts\sloplint.mjs:564:  const m = re.exec(attrStr);
+.agents\skills\hallmark\scripts\sloplint.mjs:647:  if ((m = /^#([0-9a-f]{3,8})$/.exec(v))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:661:  if ((m = /^rgba?\(([^)]+)\)$/.exec(v))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:673:  if ((m = /^hsla?\(([^)]+)\)$/.exec(v))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:693:  if ((m = /^oklch\(([^)]+)\)$/.exec(v))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:786:  const m = /^(-?\d+(?:\.\d+)?)(px|rem|em)$/.exec(value.trim());
+.agents\skills\hallmark\scripts\sloplint.mjs:796:const gateNumber = (id) => (/^(\d{1,2})/.exec(String(id)) || [])[1]
+|| null;
+.agents\skills\hallmark\scripts\sloplint.mjs:824:  const m = /^(\d{1,2}(?:i{1,3}|[a-z])?)/.exec(s);
+.agents\skills\hallmark\scripts\sloplint.mjs:927:  LAYOUT_KEPT =
+(/\bredesign:\s*(polish|restyle|full)\b/i.exec(ctx.stampText) || [])[1]?.toLowerCase() || false;
+.agents\skills\hallmark\scripts\sloplint.mjs:1024:  const f = /^F(\d+)$/.exec(g);
+.agents\skills\hallmark\scripts\sloplint.mjs:1060:      const tagM = /^([a-zA-Z][\w-]*)/.exec(cleaned);
+.agents\skills\hallmark\scripts\sloplint.mjs:1091:  const clamped = /clamp\(\s*([^,]+),/.exec(v);
+.agents\skills\hallmark\scripts\sloplint.mjs:1098:  const m = /^(-?\d*\.?\d+)em$/.exec(v.trim());
+.agents\skills\hallmark\scripts\sloplint.mjs:1134:  while ((cm = colRe.exec(resolved))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:1172:  while ((m = re.exec(value))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:1259:      const m = /(\d+(?:\.\d+)?)px/.exec(d.value);
+.agents\skills\hallmark\scripts\sloplint.mjs:1337:      const m = /scale\(\s*([\d.]+)\s*\)/.exec(d.value);
+.agents\skills\hallmark\scripts\sloplint.mjs:1371:      while ((m = re.exec(resolveVars(d.value, ctx.tokens)))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:1400:        const hard = hardRe.exec(d.value);
+.agents\skills\hallmark\scripts\sloplint.mjs:1401:        const soft = softRe.exec(d.value);
+.agents\skills\hallmark\scripts\sloplint.mjs:1455:    const title = (/<title\b[^>]*>([^<]*)<\/title>/i.exec(doc.src)
+|| [])[1] || '';
+.agents\skills\hallmark\scripts\sloplint.mjs:1457:      const m = re.exec(t);
+.agents\skills\hallmark\scripts\sloplint.mjs:1493:      while ((m = re.exec(d.value))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:1509:    (/^(min-)?height$/.test(d.prop) &&
+(parseFloat((/([\d.]+)\s*(vh|dvh|svh)/.exec(d.value) || [])[1] || 0) >= 40 || (pxOf(d.value) ?? 0) >= 320)) ||
+.agents\skills\hallmark\scripts\sloplint.mjs:1527:      const clampMax = /,\s*([^,()]+)\)\s*$/.exec(rv);
+.agents\skills\hallmark\scripts\sloplint.mjs:1545:      while ((m = re.exec(d.value))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:1599:      const m = /^([\d.]+)ch$/.exec(resolveVars(d.value,
+ctx.tokens).trim());
+.agents\skills\hallmark\scripts\sloplint.mjs:1767:    const targets = r.selector.split(',').map((p) =>
+(/^\s*(html|body)\s*$/.exec(p) || [])[1]).filter(Boolean);
+.agents\skills\hallmark\scripts\sloplint.mjs:1837:    while ((m = re.exec(doc.src))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:1838:      const classes = ((/class\s*=\s*["']([^"']*)["']/i.exec(m[2])
+|| [])[1] || '').split(/\s+/).filter(Boolean);
+.agents\skills\hallmark\scripts\sloplint.mjs:1851:  const widthOf = (v) => { const m = /(\d+(?:\.\d+)?)px/.exec(v);
+return m ? parseFloat(m[1]) : null; };
+.agents\skills\hallmark\scripts\sloplint.mjs:2009:    while ((cm = colRe.exec(inner.inner))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:2035:      const m = re.exec(prose);
+.agents\skills\hallmark\scripts\sloplint.mjs:2055:        const m = cls ? re.exec(cls) : null;
+.agents\skills\hallmark\scripts\sloplint.mjs:2060:      const m = re.exec(r.selector);
+.agents\skills\hallmark\scripts\sloplint.mjs:2097:      while ((m = re.exec(d.value))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:2110:    while ((m = re.exec(doc.src))) {
+.agents\skills\hallmark\scripts\sloplint.mjs:2111:      const lit =
+/#[0-9a-fA-F]{3,8}\b|oklch\([^)]*\)|rgba?\([^)]*\)|hsla?\([^)]*\)/.exec(m[1]);
+.agents\skills\hallmark\scripts\sloplint.mjs:2150:      const bare = /(?<![\w.-])\d*\.?\d+fr\b/.exec(flat);
+.agents\skills\hallmark\scripts\sloplint.mjs:2257:  const innerHref =
+/<a\b[^>]*\shref\s*=\s*["']([^"']*)["']/i.exec(inner);
+.agents\skills\hallmark\scripts\sloplint.mjs:2338:      const m = idRe.exec(body.inner);
+.agents\skills\hallmark\scripts\sloplint.mjs:2382:    const m =
+/\w\s--\s\w|[\u2014\u2013]|&mdash;|&ndash;|&#8212;|&#8211;/.exec(prose);
+.agents\skills\hallmark\scripts\sloplint.mjs:2490:    const raw = fam.prop === 'font' ?
+(/var\(--font-[\w-]+\)/.exec(fam.value) || [fam.value])[0] : fam.value;
+.agents\skills\hallmark\scripts\sloplint.mjs:2531:  const rep = /^repeat\(\s*(\d+)/.exec(t);
+.agents\skills\hallmark\scripts\sloplint.mjs:2655:    const pct = /(\d+(?:\.\d+)?)%/.exec(rv);
+.agents\skills\hallmark\scripts\sloplint.mjs:2720:    const m = /\.([a-z][\w-]*)/i.exec(sel) ||
+/(^|[\s>+~])([a-z][\w-]*)/i.exec(sel);
+.agents\skills\hallmark\scripts\sloplint.mjs:2753:    const f = FAKE.exec(text);
+.agents\skills\hallmark\scripts\sloplint.mjs:2771:  const m =
+/(?:^|\s)(\d+(?:\.\d+)?(?:px|rem|em))(?:\/[\d.]+(?:px|rem|em)?)?\s/.exec(resolveVars(f.value, ctx.tokens) + ' ');
+.agents\skills\hallmark\scripts\sloplint.mjs:2786:    names.push((/^[a-zA-Z][\w-]*/.exec(comp) || [''])[0]);
+.agents\skills\hallmark\scripts\sloplint.mjs:2897:    const m = ACCENT38.exec(r.selector);
+.agents\skills\hallmark\scripts\sloplint.mjs:2947:  const cls = (/\.([\w-]+)/.exec(head) || [])[1];
+.agents\skills\hallmark\scripts\sloplint.mjs:3000:      const m = re.exec(prose);
+.agents\skills\hallmark\scripts\sloplint.mjs:3173:    const m = PLACEHOLDER_IMG.exec(doc.src);
+.agents\skills\hallmark\scripts\sloplint.mjs:3177:    const m = PLACEHOLDER_IMG.exec(c.raw);
+.agents\skills\hallmark\scripts\sloplint.mjs:3187:      const m = TAILWIND_HEX.exec(d.value);
+.agents\skills\hallmark\scripts\sloplint.mjs:3228:        const cm = COLOR_RE.exec(part);
+.agents\skills\hallmark\scripts\sloplint.mjs:3243:      const n = f ?
+parseFloat(/blur\(\s*(\d+(?:\.\d+)?)px/i.exec(f.value)[1]) : 0;
+.agents\skills\hallmark\scripts\sloplint.mjs:3357:  let m = /^text-(xs|sm|base|lg|[2-9]?xl)(?:\/\S+)?$/.exec(b);
+.agents\skills\hallmark\scripts\sloplint.mjs:3359:  m =
+/^text-(?:\[(?:length:)?([^\]]+)\]|\((?:length:)?(--[\w-]+)\))(?:\/\S+)?$/.exec(b);
+.agents\skills\hallmark\scripts\sloplint.mjs:3362:    m = /^text-([a-z][\w-]*?)(?:\/\S+)?$/.exec(b);
+.agents\skills\hallmark\scripts\sloplint.mjs:3367:  const cl = /^clamp\(\s*([^,]+),/.exec(r);
+.agents\skills\hallmark\scripts\sloplint.mjs:3373:  let m =
+/^tracking-(tighter|tight|normal|wide|wider|widest)$/.exec(b);
+.agents\skills\hallmark\scripts\sloplint.mjs:3376:  else if ((m =
+/^tracking-(?:\[([^\]]+)\]|\((--[\w-]+)\))$/.exec(b))) v = m[1] ? m[1].replace(/_/g, ' ') : `var(${m[2]})`;
+.agents\skills\hallmark\scripts\sloplint.mjs:3377:  else if ((m = /^tracking-([a-z][\w-]*)$/.exec(b)) &&
+tok[`--tracking-${m[1]}`]) v = tok[`--tracking-${m[1]}`];
+.agents\skills\hallmark\scripts\sloplint.mjs:3380:  const e = /^(-?\d*\.?\d+)em$/.exec(r);
+.agents\skills\hallmark\scripts\sloplint.mjs:3395:  const pm = TW_SHADE.exec(v);
+.agents\skills\hallmark\scripts\sloplint.mjs:3418:    const fam = /^font-family:(.+)$/.exec(v);
+.agents\skills\hallmark\scripts\sloplint.mjs:3469:      const arb = /^font-\[(.+)\]$/.exec(b);
+.agents\skills\hallmark\scripts\sloplint.mjs:3472:      const named = !arb && /^font-([a-z][\w-]*)$/.exec(b);
+.agents\skills\hallmark\scripts\sloplint.mjs:3487:    const ez = /^ease-\[cubic-bezier\(([^)]*)\)\]$/.exec(b);
+.agents\skills\hallmark\scripts\sloplint.mjs:3500:    const st = /^(?:from|via|to)-(.+)$/.exec(b);
+.agents\skills\hallmark\scripts\sloplint.mjs:3505:    const bl =
+/^blur-(?:(2xl|3xl)|\[(\d*\.?\d+)(px|rem)\])$/.exec(b);
+.agents\skills\hallmark\scripts\sloplint.mjs:3513:      const gm = TW_GLASS.exec(b);
+.agents\skills\hallmark\scripts\sloplint.mjs:3523:      const sm = /^shadow-\[(.+)\]$/.exec(b);
+.agents\skills\hallmark\scripts\sloplint.mjs:3575:    else val = (/^[^\s>]*/.exec(tag.slice(i)) || [''])[0];
+.agents\skills\hallmark\scripts\sloplint.mjs:3702:      const cm = COLOR_RE.exec(part);
+.agents\skills\hallmark\scripts\sloplint.mjs:3711:        const pm = TW_SHADE.exec(name);
+.agents\skills\hallmark\scripts\sloplint.mjs:3758:  const href =
+/<a\b[^>]*\shref\s*=\s*["']([^"']*)["']/i.exec(inner);
+.agents\skills\hallmark\scripts\sloplint.mjs:3888:    const m =
+/class(?:Name)?\s*=\s*["'][^"']*(?<![\w-])text-justify(?![\w-])/.exec(doc.src);
+.agents\skills\hallmark\scripts\sloplint.mjs:3897:    const html = /<html\b([^>]*)>/i.exec(doc.src);
+.agents\skills\hallmark\scripts\sloplint.mjs:3918:    const m = /class(?:Name)?\s*=\s*["'][^"']*(?<![\w:-])border(?![\
+w-])[^"']*(?<![\w:-])shadow-(?:xl|2xl)(?![\w-])|class(?:Name)?\s*=\s*["'][^"']*(?<![\w:-])shadow-(?:xl|2xl)(?![\w-])[^
+"']*(?<![\w:-])border(?![\w-])/.exec(doc.raw || doc.src);
+.agents\skills\hallmark\scripts\sloplint.mjs:4099:  const posture =
+(/posture:\s*(restrained|committed|full-palette|drenched)/i.exec(stampText)?.[1] || 'restrained').toLowerCase();
+.agents\skills\hallmark\scripts\sloplint.mjs:4101:  const heroPosture = /theme:\s*custom\b/i.test(stampText) ?
+'custom' : (/hero:\s*(settled|banner|poster|ledge|corridor|stage|counter|index)\b/i.exec(stampText)?.[1] ||
+'').toLowerCase();
+.agents\skills\hallmark\scripts\sloplint.mjs:4103:  const job = ((/\bjob:\s*([a-z][a-z /-]*)/i.exec(stampText) ||
+[])[1] || '').trim().toLowerCase();
+.agents\skills\hallmark\scripts\sloplint.mjs:4182:    const tag =
+(/<([A-Za-z][\w.-]*)[^<]*$/.exec(body.slice(Math.max(0, m.index - 600), m.index)) || [])[1] || '';
+.agents\skills\hallmark\scripts\sloplint.mjs:4188:    const tag =
+(/<([A-Za-z][\w.-]*)[^<]*$/.exec(body.slice(Math.max(0, m.index - 600), m.index)) || [])[1] || '';
+.agents\skills\hallmark\scripts\theme.mjs:39:  const m = /^---\r?\n([\s\S]*?)\r?\n---/.exec(src);
+.agents\skills\hallmark\scripts\theme.mjs:43:    const mm = /^([a-z]+):\s*(.*)$/.exec(line.trim());
+.agents\skills\hallmark\scripts\theme.mjs:451:  const m = /```css\s*\n:root\s*\{([\s\S]*?)\n\}\s*\n```/.exec(src);
+.agents\skills\hallmark\scripts\theme.mjs:544:  const own = !custom && /## Build
+hint[\s\S]*?(::selection\s*\{[^}]*\})/.exec(readFileSync(join(THEMES, `${slug}.md`), 'utf8'));
+.agents\skills\hallmark\scripts\theme.mjs:551:  const dial = /stated in the stamp \(`([a-z0-9-]+):/.exec(src);
+.agents\skills\hallmark\scripts\theme.mjs:603:      else { const t = treatmentOf(/^photo:\s*(.*)$/m.exec(src)[1],
+tokensOf(src, f)); if (t.bad.length) problems.push(`photo: ${t.bad.join('; ')}`); }
+.agents\skills\hallmark\scripts\theme.mjs:615:        const ls = /letter-spacing:\s*(-?[\d.]+)em/.exec(line);
+.agents\skills\hallmark\scripts\theme.mjs:620:      const hint = (/## Build
+hint[\s\S]*?```css\n([\s\S]*?)```/.exec(src) || [])[1] || '';
+.agents\skills\hallmark\scripts\theme.test.mjs:2:import { spawnSync } from 'node:child_process';
+.agents\skills\hallmark\scripts\theme.test.mjs:18:      const result = spawnSync(process.execPath, [cli, 'validate',
+file], { encoding: 'utf8' });
+.agents\skills\hallmark\scripts\theme.test.mjs:37:      const result = spawnSync(process.execPath, [cli, 'validate',
+file], { encoding: 'utf8' });
+
+=== FILE AND ENVIRONMENT ACCESS ===
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:4:import { mkdtempSync, mkdirSync, writeFileSync,
+rmSync, realpathSync, readFileSync } from 'node:fs';
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:20:    mkdirSync(dirname(output), { recursive:
+true });
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:23:    for (const path of paths)
+writeFileSync(path, png);
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:24:    writeFileSync(stem + '.json',
+JSON.stringify({ hash, files: paths.map((path) => path.split(/[\\/]/).pop()) }));
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:27:      const env = { ...process.env };
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:34:  } finally { rmSync(dir, { recursive: true,
+force: true }); }
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:45:      for (const path of report.paths)
+assert.deepEqual(readFileSync(path), png);
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:58:      const before = [metadata,
+...paths].map((file) => readFileSync(file));
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:60:      writeFileSync(preload, `globalThis.fetch
+= async () => ({ ok: true, json: async () => (${JSON.stringify({ data: response })}) });`);
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:62:        cwd: dirname(metadata), env: {
+...process.env, TOGETHER_API_KEY: 'offline-test-key' }, encoding: 'utf8', timeout: 5000,
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:67:      assert.deepEqual([metadata,
+...paths].map((file) => readFileSync(file)), before);
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:76:    writeFileSync(preload, `globalThis.fetch =
+async () => ({ ok: true, json: async () => ({ data: Array.from({ length: 2 }, () => ({ b64_json:
+'${generated.toString('base64')}' })) }) });`);
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:78:      cwd: dirname(metadata), env: {
+...process.env, TOGETHER_API_KEY: 'offline-test-key' }, encoding: 'utf8', timeout: 5000,
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:85:    for (const file of paths)
+assert.deepEqual(readFileSync(file), generated);
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:86:
+assert.equal(JSON.parse(readFileSync(metadata, 'utf8')).files.length, 2);
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:104:    rmSync(paths[1]);
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:113:    writeFileSync(metadata, JSON.stringify({
+hash: 'another-request' }));
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:123:    const env = { ...process.env };
+.agents\skills\hallmark\scripts\fixtures\imagegen\imagegen.test.mjs:133:  } finally { rmSync(dir, { recursive: true,
+force: true }); }
+.agents\skills\hallmark\scripts\capture.mjs:17:import { mkdirSync, existsSync, writeFileSync } from 'node:fs';
+.agents\skills\hallmark\scripts\capture.mjs:42:const roots = [process.env.HALLMARK_PUPPETEER, process.cwd(),
+HERE].filter(Boolean);
+.agents\skills\hallmark\scripts\capture.mjs:53:const CHROMES = [process.env.CHROME_PATH, '/Applications/Google
+Chrome.app/Contents/MacOS/Google Chrome', '/Applications/Chromium.app/Contents/MacOS/Chromium',
+'/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser',
+'/snap/bin/chromium', 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files
+(x86)\\Google\\Chrome\\Application\\chrome.exe'];
+.agents\skills\hallmark\scripts\capture.mjs:64:  mkdirSync(out, { recursive: true });
+.agents\skills\hallmark\scripts\capture.mjs:87:mkdirSync(out, { recursive: true });
+.agents\skills\hallmark\scripts\capture.test.mjs:3:import { mkdtempSync, readdirSync, readFileSync, rmSync,
+writeFileSync } from 'node:fs';
+.agents\skills\hallmark\scripts\capture.test.mjs:10:const skip = !process.env.HALLMARK_PUPPETEER ||
+!process.env.CHROME_PATH ? 'set HALLMARK_PUPPETEER and CHROME_PATH for real-browser regressions' : false;
+.agents\skills\hallmark\scripts\capture.test.mjs:24:      const p = spawn(process.execPath, [script,
+`http://127.0.0.1:${server.address().port}`, '--routes', routes, '--sizes', 'desktop', '--wait', '0', '--scale', '1',
+'--out', out || dir], { cwd: dir, env: process.env });
+.agents\skills\hallmark\scripts\capture.test.mjs:34:    rmSync(dir, { recursive: true, force: true });
+.agents\skills\hallmark\scripts\capture.test.mjs:40:    await capture(route, (dir) => writeFileSync(join(dir, file),
+'prior screenshot'), (dir, result) => {
+.agents\skills\hallmark\scripts\capture.test.mjs:42:      assert.equal(readFileSync(join(dir, file), 'utf8'), 'prior
+screenshot');
+.agents\skills\hallmark\scripts\capture.test.mjs:54:    assert.deepEqual([...readFileSync(join(dir,
+'screen-ok-desktop.png')).subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+.agents\skills\hallmark\scripts\capture.test.mjs:77:      for (const file of files)
+assert.deepEqual([...readFileSync(join(dir, file)).subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+.agents\skills\hallmark\scripts\imagegen.mjs:3:import { mkdirSync, existsSync, writeFileSync, readFileSync } from
+"node:fs";
+.agents\skills\hallmark\scripts\imagegen.mjs:47:const sameRequest = () => { if (!args.out) return true; try { return
+JSON.parse(readFileSync(metaPath, "utf8")).hash === hash; } catch { return false; } };
+.agents\skills\hallmark\scripts\imagegen.mjs:60:const key = process.env.TOGETHER_API_KEY;
+.agents\skills\hallmark\scripts\imagegen.mjs:86:  mkdirSync(cacheDir, { recursive: true });
+.agents\skills\hallmark\scripts\imagegen.mjs:88:  images.forEach((b64, i) => { const p = pathFor(i); writeFileSync(p,
+Buffer.from(b64, "base64")); paths.push(p); });
+.agents\skills\hallmark\scripts\imagegen.mjs:90:  writeFileSync(metaPath, JSON.stringify(provenance, null, 2) + "\n");
+.agents\skills\hallmark\scripts\install-hook.mjs:2:import { readFileSync, writeFileSync, mkdirSync, existsSync,
+renameSync, realpathSync } from "node:fs";
+.agents\skills\hallmark\scripts\install-hook.mjs:5:import { homedir } from "node:os";
+.agents\skills\hallmark\scripts\install-hook.mjs:15:  ? join(homedir(), ".claude", "settings.json")
+.agents\skills\hallmark\scripts\install-hook.mjs:25:  try { return JSON.parse(readFileSync(settingsPath, "utf8")); }
+catch {
+.agents\skills\hallmark\scripts\install-hook.mjs:56:const save = () => { const dest = existsSync(settingsPath) ?
+realpathSync(settingsPath) : settingsPath; const tmp = `${dest}.hallmark-tmp`; writeFileSync(tmp,
+JSON.stringify(settings, null, 2) + "\n"); renameSync(tmp, dest); };
+.agents\skills\hallmark\scripts\install-hook.mjs:67:mkdirSync(dirname(settingsPath), { recursive: true });
+.agents\skills\hallmark\scripts\install.mjs:5:import { homedir } from "node:os";
+.agents\skills\hallmark\scripts\install.mjs:9:const HOME = homedir();
+.agents\skills\hallmark\scripts\install.mjs:50:  fs.mkdirSync(dest, { recursive: true });
+.agents\skills\hallmark\scripts\install.mjs:57:    else fs.copyFileSync(s, d);
+.agents\skills\hallmark\scripts\install.mjs:64:  fs.rmSync(tmp, { recursive: true, force: true });
+.agents\skills\hallmark\scripts\install.mjs:65:  fs.mkdirSync(tmp, { recursive: true });
+.agents\skills\hallmark\scripts\install.mjs:71:    else { fs.mkdirSync(path.dirname(dest), { recursive: true });
+fs.copyFileSync(src, dest); }
+.agents\skills\hallmark\scripts\install.mjs:73:  fs.rmSync(dir, { recursive: true, force: true });
+.agents\skills\hallmark\scripts\install.mjs:74:  fs.mkdirSync(path.dirname(dir), { recursive: true });
+.agents\skills\hallmark\scripts\install.mjs:82:  fs.rmSync(dir, { recursive: true, force: true });
+.agents\skills\hallmark\scripts\lint-hook.mjs:2:import { readFileSync, existsSync } from "node:fs";
+.agents\skills\hallmark\scripts\lint-hook.mjs:11:  try { raw = readFileSync(0, "utf8"); } catch { return OK(); }
+.agents\skills\hallmark\scripts\lint-hook.mjs:21:  try { src = readFileSync(filePath, "utf8"); } catch { return OK();
+}
+.agents\skills\hallmark\scripts\picture.mjs:2:import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+.agents\skills\hallmark\scripts\picture.mjs:21:const roots = [process.env.HALLMARK_PUPPETEER, process.cwd(),
+HERE].filter(Boolean);
+.agents\skills\hallmark\scripts\picture.mjs:31:const CHROMES = [process.env.CHROME_PATH, '/Applications/Google
+Chrome.app/Contents/MacOS/Google Chrome', '/Applications/Chromium.app/Contents/MacOS/Chromium',
+'/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser',
+'/snap/bin/chromium', 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe', 'C:\\Program Files
+(x86)\\Google\\Chrome\\Application\\chrome.exe'];
+.agents\skills\hallmark\scripts\picture.mjs:52:const head = (existsSync(cssPath) ? readFileSync(cssPath,
+'utf8').slice(0, 600) : '') + '\n' + stamp;
+.agents\skills\hallmark\scripts\picture.mjs:59:writeFileSync(out, await c.screenshot({ type: 'jpeg', quality: 80,
+clip: { x: 0, y: 0, width: 960, height: 1208 } }));
+.agents\skills\hallmark\scripts\picture.mjs:62:  let src = readFileSync(themeFile, 'utf8');
+.agents\skills\hallmark\scripts\picture.mjs:68:  writeFileSync(themeFile, src);
+.agents\skills\hallmark\scripts\refcheck.mjs:2:import { readFileSync, readdirSync, statSync, existsSync, mkdtempSync,
+copyFileSync, rmSync, mkdirSync, writeFileSync, symlinkSync } from 'node:fs';
+.agents\skills\hallmark\scripts\refcheck.mjs:29:const read = (f) => readFileSync(f, 'utf8');
+.agents\skills\hallmark\scripts\refcheck.mjs:259:const front = /^---\n([\s\S]*?)\n---\n/.exec(readFileSync(SKILL,
+'utf8'));
+.agents\skills\hallmark\scripts\refcheck.mjs:292:    mkdirSync(project);
+.agents\skills\hallmark\scripts\refcheck.mjs:293:    mkdirSync(shared);
+.agents\skills\hallmark\scripts\refcheck.mjs:294:    writeFileSync(join(shared, 'style.css'), 'p { color:
+var(--color-text); }');
+.agents\skills\hallmark\scripts\refcheck.mjs:302:  } finally { rmSync(tmp, { recursive: true, force: true }); }
+.agents\skills\hallmark\scripts\refcheck.mjs:307:    writeFileSync(join(tmp, 'source.css'), ':root { --paper:
+#f3f2ef; }');
+.agents\skills\hallmark\scripts\refcheck.mjs:309:      mkdirSync(join(tmp, dir));
+.agents\skills\hallmark\scripts\refcheck.mjs:310:      writeFileSync(join(tmp, dir, 'page.css'), 'body { background:
+#fff; color: #000; }');
+.agents\skills\hallmark\scripts\refcheck.mjs:325:  } finally { rmSync(tmp, { recursive: true, force: true }); }
+.agents\skills\hallmark\scripts\refcheck.mjs:331:    mkdirSync(join(theme, '.cache'), { recursive: true });
+.agents\skills\hallmark\scripts\refcheck.mjs:332:    writeFileSync(join(theme, 'style.css'), 'p { color:
+var(--color-text); }');
+.agents\skills\hallmark\scripts\refcheck.mjs:333:    writeFileSync(join(theme, '.cache', 'style.css'), 'p { color:
+var(--color-text); }');
+.agents\skills\hallmark\scripts\refcheck.mjs:338:  } finally { rmSync(tmp, { recursive: true, force: true }); }
+.agents\skills\hallmark\scripts\refcheck.mjs:362:    copyFileSync(join(keptDir, 'before.html'), join(tmp,
+'index.html'));
+.agents\skills\hallmark\scripts\refcheck.mjs:364:    copyFileSync(join(keptDir, 'after.html'), join(tmp,
+'index.html'));
+.agents\skills\hallmark\scripts\refcheck.mjs:374:  } finally { rmSync(tmp, { recursive: true, force: true }); }
+.agents\skills\hallmark\scripts\reroll-exhaustion.test.mjs:3:import { mkdtempSync, rmSync } from 'node:fs';
+.agents\skills\hallmark\scripts\reroll-exhaustion.test.mjs:18:  } finally { rmSync(dir, {recursive: true, force:
+true}); }
+.agents\skills\hallmark\scripts\sloplint-render.mjs:2:import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+.agents\skills\hallmark\scripts\sloplint-render.mjs:83:    mkdirSync(dir, { recursive: true });
+.agents\skills\hallmark\scripts\sloplint-render.mjs:85:    if (!existsSync(ignore)) writeFileSync(ignore,
+'shots/\nbefore/\nbefore.json\nbefore.txt\ncompare.html\n');
+.agents\skills\hallmark\scripts\sloplint-render.mjs:113:  if (process.env.HALLMARK_PUPPETEER)
+local.unshift(process.env.HALLMARK_PUPPETEER);
+.agents\skills\hallmark\scripts\sloplint-render.mjs:126:  let chrome = [process.env.CHROME_PATH, ...CHROMES].find((p)
+=> p && existsSync(p)) || null;
+.agents\skills\hallmark\scripts\sloplint-render.mjs:323:    writeFileSync(join(dir, 'compare.html'), html);
+.agents\skills\hallmark\scripts\sloplint-render.test.mjs:2:import { mkdtempSync, readFileSync, rmSync, writeFileSync
+} from 'node:fs';
+.agents\skills\hallmark\scripts\sloplint-render.test.mjs:10:const source = readFileSync(new
+URL('./sloplint-render.mjs', import.meta.url), 'utf8');
+.agents\skills\hallmark\scripts\sloplint-render.test.mjs:12:writeFileSync(modulePath, source + '\nexport {
+pixelBehind, pixelsAroundRing };\n');
+.agents\skills\hallmark\scripts\sloplint-render.test.mjs:14:rmSync(dir, { recursive: true, force: true });
+.agents\skills\hallmark\scripts\sloplint-render.test.mjs:15:const puppeteerPath = process.env.HALLMARK_TEST_PUPPETEER;
+.agents\skills\hallmark\scripts\sloplint-render.test.mjs:16:const chromePath = process.env.HALLMARK_TEST_CHROME;
+.agents\skills\hallmark\scripts\sloplint.mjs:4:import { readFileSync, readdirSync, statSync, realpathSync,
+existsSync, writeFileSync, mkdirSync } from 'node:fs';
+.agents\skills\hallmark\scripts\sloplint.mjs:3927:  try { for (const p of
+JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'photos.json'), 'utf8')).photos) {
+LIBRARY.set(p.file.split('/').pop(), p); LIBRARY.set(savedName(p.id), p); } } catch { /* no library */ }
+.agents\skills\hallmark\scripts\sloplint.mjs:4058:  try { doc = parseDoc(f, readFileSync(f, 'utf8')); } catch (e) {
+console.error(`sloplint: skipped ${rel(f)}, it could not be parsed (${e.message})`); }
+.agents\skills\hallmark\scripts\sloplint.mjs:4069:    const raw = readFileSync(f, 'utf8');
+.agents\skills\hallmark\scripts\sloplint.mjs:4089:    try { raw = readFileSync(p, 'utf8'); } catch { continue; }
+.agents\skills\hallmark\scripts\sloplint.mjs:4124:      try { queue.push(...importsOf(readFileSync(q, 'utf8'),
+dirname(q))); } catch {}
+.agents\skills\hallmark\scripts\sloplint.mjs:4148:  const isShell = (f) => { try { const x = readFileSync(f, 'utf8');
+return
+/<script\b[^>]*type\s*=\s*["']module["'][^>]*\bsrc\s*=\s*["'][^"']+\.(?:tsx?|jsx?|mjs|vue|svelte)["']/i.test(x); }
+catch { return false; } };
+.agents\skills\hallmark\scripts\sloplint.mjs:4202:    try { js += '\n' + readFileSync(resolve(dirname(doc.file),
+m[1].split('?')[0]), 'utf8'); } catch {}
+.agents\skills\hallmark\scripts\sloplint.mjs:4246:  try { was = JSON.parse(readFileSync(SNAP, 'utf8')); } catch {}
+.agents\skills\hallmark\scripts\sloplint.mjs:4373:  mkdirSync(dirname(SNAP), { recursive: true });
+.agents\skills\hallmark\scripts\sloplint.mjs:4374:  writeFileSync(SNAP, JSON.stringify({ v: 1, at: new
+Date().toISOString(), scope: opts.scope, summary: { fails, reflex, warns }, ...inv }, null, 1) + '\n');
+.agents\skills\hallmark\scripts\sloplint.mjs:4400:    mkdirSync(dirname(SNAP), { recursive: true });
+.agents\skills\hallmark\scripts\sloplint.mjs:4402:    if (!existsSync(ignore)) writeFileSync(ignore,
+'shots/\nbefore/\nbefore.json\nbefore.txt\ncompare.html\n');
+.agents\skills\hallmark\scripts\sloplint.mjs:4403:    writeFileSync(every, unique.map((f) => `${f.grade} ${f.gate}
+${f.file}:${f.line} ${f.evidence} | fix: ${f.fix}`).join('\n') + '\n');
+.agents\skills\hallmark\scripts\theme.mjs:2:import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync,
+renameSync } from 'node:fs';
+.agents\skills\hallmark\scripts\theme.mjs:66:  const entries = files.map((f) => parseHeader(readFileSync(join(THEMES,
+f), 'utf8'), f));
+.agents\skills\hallmark\scripts\theme.mjs:72:  writeFileSync(INDEX, JSON.stringify({ themes: entries }, null, 1) +
+'\n');
+.agents\skills\hallmark\scripts\theme.mjs:78:  return JSON.parse(readFileSync(INDEX, 'utf8')).themes;
+.agents\skills\hallmark\scripts\theme.mjs:95:  if (existsSync(file)) { try { JSON.parse(readFileSync(file, 'utf8'));
+} catch { console.error(`${file} is not valid JSON; fix it or move it aside, nothing was written`); process.exit(1);
+} }
+.agents\skills\hallmark\scripts\theme.mjs:97:  mkdirSync(dirname(file), { recursive: true });
+.agents\skills\hallmark\scripts\theme.mjs:99:  writeFileSync(tmp, JSON.stringify(next, null, 1) + '\n');
+.agents\skills\hallmark\scripts\theme.mjs:106:  try { const j = JSON.parse(readFileSync(p, 'utf8')); return
+Array.isArray(j) ? j : (j.runs || []); } catch { return []; }
+.agents\skills\hallmark\scripts\theme.mjs:152:  try { if (existsSync(f)) return readFileSync(f, 'utf8').trim();
+mkdirSync(dirname(f), { recursive: true }); const salt = randomBytes(4).toString('hex'); writeFileSync(f, salt +
+'\n'); return salt; } catch { return 'nosalt'; }
+.agents\skills\hallmark\scripts\theme.mjs:191:  if (slug && isSlug(slug) && existsSync(join(THEMES, `${slug}.md`)))
+pictured = low(parseHeader(readFileSync(join(THEMES, `${slug}.md`), 'utf8'), slug).pictured).split(/,\s*/).map((x) =>
+x.replace(/ hero$/, ''));
+.agents\skills\hallmark\scripts\theme.mjs:350:  const lib = JSON.parse(readFileSync(PHOTOS, 'utf8')).photos;
+.agents\skills\hallmark\scripts\theme.mjs:360:    const src = readFileSync(file, 'utf8');
+.agents\skills\hallmark\scripts\theme.mjs:366:  const avoidText = flag('avoid', '') && existsSync(flag('avoid', ''))
+? readFileSync(flag('avoid', ''), 'utf8') : '';
+.agents\skills\hallmark\scripts\theme.mjs:407:    mkdirSync(resolve(saveDir), { recursive: true });
+.agents\skills\hallmark\scripts\theme.mjs:418:        writeFileSync(file, Buffer.from(await res.arrayBuffer()));
+p.saved = file;
+.agents\skills\hallmark\scripts\theme.mjs:522:    const src = readFileSync(file, 'utf8');
+.agents\skills\hallmark\scripts\theme.mjs:530:  mkdirSync(dir, { recursive: true });
+.agents\skills\hallmark\scripts\theme.mjs:534:  const sheetSrc = sheet ? readFileSync(sheet, 'utf8') : '';
+.agents\skills\hallmark\scripts\theme.mjs:543:  writeFileSync(out, css);
+.agents\skills\hallmark\scripts\theme.mjs:544:  const own = !custom && /## Build
+hint[\s\S]*?(::selection\s*\{[^}]*\})/.exec(readFileSync(join(THEMES, `${slug}.md`), 'utf8'));
+.agents\skills\hallmark\scripts\theme.mjs:547:  const photo = custom ? '' : treatmentOf(header.photo,
+tokensOf(readFileSync(join(THEMES, `${slug}.md`), 'utf8'), slug)).css;
+.agents\skills\hallmark\scripts\theme.mjs:548:  writeFileSync(baseOut, (tw ? base.split('\n').filter((l) =>
+!steps.includes(l)).join('\n') : base) + (photo ? `\n/* photographs: ${header.photo} */\n${photo}` : '') + '\n');
+.agents\skills\hallmark\scripts\theme.mjs:549:  if (tw) writeFileSync(out, readFileSync(out, 'utf8') +
+steps.join('\n') + '\n');
+.agents\skills\hallmark\scripts\theme.mjs:550:  const src = custom ? '' : readFileSync(join(THEMES, `${slug}.md`),
+'utf8');
+.agents\skills\hallmark\scripts\theme.mjs:590:      const src = readFileSync(f, 'utf8').replace(/\r\n?/g, '\n');
+.agents\skills\hallmark\scripts\theme.test.mjs:3:import { mkdtempSync, readFileSync, rmSync, writeFileSync } from
+'node:fs';
+.agents\skills\hallmark\scripts\theme.test.mjs:10:  const source = readFileSync(new
+URL('../references/themes/hum.md', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+.agents\skills\hallmark\scripts\theme.test.mjs:17:      writeFileSync(file, text);
+.agents\skills\hallmark\scripts\theme.test.mjs:23:    rmSync(dir, { recursive: true, force: true });
+.agents\skills\hallmark\scripts\theme.test.mjs:28:  const source = readFileSync(new
+URL('../references/themes/hum.md', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+.agents\skills\hallmark\scripts\theme.test.mjs:36:      writeFileSync(file, text);
+.agents\skills\hallmark\scripts\theme.test.mjs:42:    rmSync(dir, { recursive: true, force: true });
+
+=== HOOK INSTALLATION ===
+#!/usr/bin/env node
+import { readFileSync, writeFileSync, mkdirSync, existsSync, renameSync, realpathSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+import { homedir } from "node:os";
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const HOOK_CMD = `node "${join(HERE, "lint-hook.mjs")}"`;
+const MATCHER = "Write|Edit|MultiEdit";
+
+const args = process.argv.slice(2);
+const has = (f) => args.includes(f);
+
+const settingsPath = has("--global")
+  ? join(homedir(), ".claude", "settings.json")
+  : join(process.cwd(), ".claude", "settings.json");
+
+const hookEntry = {
+  matcher: MATCHER,
+  hooks: [{ type: "command", command: HOOK_CMD, timeout: 10 }],
+};
+
+function readSettings() {
+  if (!existsSync(settingsPath)) return {};
+  try { return JSON.parse(readFileSync(settingsPath, "utf8")); } catch {
+    console.error(`refusing to overwrite unparseable ${settingsPath}; fix or delete it first.`);
+    process.exit(1);
+  }
+}
+
+const ourHook = (h) => typeof h?.command === "string" && /hallmark[\\/]scripts[\\/]lint-hook\.mjs/.test(h.command);
+const withoutOurs = (list) => list.flatMap((e) => {
+  if (!Array.isArray(e?.hooks) || !e.hooks.some(ourHook)) return [e];
+  const rest = e.hooks.filter((h) => !ourHook(h));
+  return rest.length ? [{ ...e, hooks: rest }] : [];
+});
+
+if (has("--print")) {
+  console.log(`# add to ${settingsPath} :`);
+  console.log(JSON.stringify({ hooks: { PostToolUse: [hookEntry] } }, null, 2));
+  process.exit(0);
+}
+
+if (has("--remove") && !existsSync(settingsPath)) {
+  console.log(`no ${settingsPath}; nothing to remove`);
+  process.exit(0);
+}
+
+const settings = readSettings();
+if (!settings || typeof settings !== "object" || Array.isArray(settings)) { console.error(`refusing to rewrite ${settingsPath}: it is not a JSON object`); process.exit(1); }
+settings.hooks ??= {};
+settings.hooks.PostToolUse ??= [];
+if (!Array.isArray(settings.hooks.PostToolUse)) { console.error(`refusing to rewrite ${settingsPath}: hooks.PostToolUse is not a list`); process.exit(1); }
+// Write beside the file and rename over it, so a crash never leaves settings.json half written.
+// A symlinked settings.json (a dotfiles repo) keeps its link: the write lands on the file it points at.
+const save = () => { const dest = existsSync(settingsPath) ? realpathSync(settingsPath) : settingsPath; const tmp = `${dest}.hallmark-tmp`; writeFileSync(tmp, JSON.stringify(settings, null, 2) + "\n"); renameSync(tmp, dest); };
+
+settings.hooks.PostToolUse = withoutOurs(settings.hooks.PostToolUse);
+
+if (has("--remove")) {
+  save();
+  console.log(`removed the Hallmark lint hook from ${settingsPath}`);
+  process.exit(0);
+}
+
+settings.hooks.PostToolUse.push(hookEntry);
+mkdirSync(dirname(settingsPath), { recursive: true });
+save();
+console.log(`installed the Hallmark edit-time lint hook into ${settingsPath}`);
+console.log(`it lints Hallmark .html and .css files, and .jsx, .tsx, .vue, .svelte and .astro files inside a project with a .hallmark folder, on write; it advises and never blocks. Remove with --remove.`);
+#!/usr/bin/env node
+import { readFileSync, existsSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const OK = (obj = {}) => { process.stdout.write(JSON.stringify(obj)); process.exit(0); };
+
+function main() {
+  let raw = "";
+  try { raw = readFileSync(0, "utf8"); } catch { return OK(); }
+  let payload;
+  try { payload = JSON.parse(raw); } catch { return OK(); }
+  const filePath = payload?.tool_input?.file_path;
+  if (typeof filePath !== "string" || !filePath) return OK();
+  const lower = filePath.toLowerCase();
+  const markup = /\.(html|css)$/.test(lower);
+  const component = /\.(jsx|tsx|vue|svelte|astro)$/.test(lower);
+  if (!markup && !component) return OK();
+  let src = "";
+  try { src = readFileSync(filePath, "utf8"); } catch { return OK(); }
+  if (src.length === 0) return OK();
+  const inHallmarkProject = () => { let d = dirname(filePath); for (let i = 0; i < 8; i++) { if (existsSync(join(d, ".hallmark"))) return true; const up = dirname(d); if (up === d) break; d = up; } return false; };
+  const looksHallmark = markup ? /\/\*\s*Hallmark/.test(src) : inHallmarkProject();
+  if (!looksHallmark) return OK();
+  const gm = src.match(/genre:\s*(editorial|modern-minimal|atmospheric|playful)/i);
+  const args = [filePath, "--json", "--tier", "floor"];
+  if (gm) args.push("--genre", gm[1].toLowerCase());
+  if (/Â·\s*component:/i.test(src) || lower.endsWith(".preview.html")) args.push("--scope", "component");
+  const sloplint = join(dirname(fileURLToPath(import.meta.url)), "sloplint.mjs");
+  let out = "";
+  try {
+    out = execFileSync(process.execPath, [sloplint, ...args], { encoding: "utf8", timeout: 4000, stdio: ["ignore", "pipe", "ignore"] });
+  } catch (e) {
+    out = e?.stdout?.toString?.() ?? "";
+  }
+  if (!out) return OK();
+  let report;
+  try { report = JSON.parse(out); } catch { return OK(); }
+  const fails = (report?.findings ?? []).filter((f) => f.grade === "FAIL");
+  if (fails.length === 0) return OK();
+  const name = filePath.split("/").pop();
+  const lines = fails.slice(0, 10).map((f) => `- gate ${f.gate} (line ${f.line}): ${f.evidence} -> ${f.fix}`);
+  const more = fails.length > 10 ? `\n  (+${fails.length - 10} more)` : "";
+  const ctx = `Hallmark Floor check on ${name}: ${fails.length} FAIL${fails.length === 1 ? "" : "s"}.\n${lines.join("\n")}${more}\nFix these now; the Reflex and Finish tiers run at Step 7.`;
+  return OK({ hookSpecificOutput: { hookEventName: "PostToolUse", additionalContext: ctx } });
+}
+
+try { main(); } catch { OK(); }
